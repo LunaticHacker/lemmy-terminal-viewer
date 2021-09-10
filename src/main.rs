@@ -6,8 +6,8 @@ use termion::{async_stdin, event::Key, input::TermRead, raw::IntoRawMode};
 use tui::backend::TermionBackend;
 use tui::layout::{Constraint, Direction, Layout};
 use tui::style::{Color, Style};
-use tui::text::Spans;
-use tui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph};
+use tui::text::Text;
+use tui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph,Wrap};
 use tui::Terminal;
 enum InputMode {
     Normal,
@@ -133,9 +133,7 @@ fn main() -> Result<(), reqwest::Error> {
                 if let InputMode::PostView = app.input_mode {
                     let chunks = Layout::default()
                         .direction(Direction::Vertical)
-                        .constraints(
-                            [Constraint::Percentage(100)],
-                        )
+                        .constraints([Constraint::Percentage(15), Constraint::Percentage(15)])
                         .split(frame.size());
                     let body = &app
                         .posts
@@ -143,11 +141,22 @@ fn main() -> Result<(), reqwest::Error> {
                         .unwrap()
                         .post
                         .body;
-                    let text = vec![Spans::from(body.as_ref().unwrap().clone())];
-                    let para =Paragraph::new(text)
-                        .block(Block::default().title("Paragraph").borders(Borders::ALL))
-                        .style(Style::default().fg(Color::White).bg(Color::Black));
-                    frame.render_widget(para,chunks[0])
+                    let url = &app.posts[app.state.selected().unwrap()].post.url;
+                    if let Some(str) = body.as_ref() {
+                        let lines = Text::styled(str, Style::default());
+                        let para = Paragraph::new(lines)
+                            .block(Block::default().borders(Borders::ALL))
+                            .style(Style::default().fg(Color::White).bg(Color::Black))
+                            .wrap(Wrap { trim: true });
+                        frame.render_widget(para, chunks[1])
+                    }
+                    if let Some(url) = url.as_ref() {
+                        let lines = Text::styled(url, Style::default());
+                        let para = Paragraph::new(lines)
+                            .block(Block::default().title("Body").borders(Borders::ALL))
+                            .style(Style::default().fg(Color::White).bg(Color::Black));
+                        frame.render_widget(para, chunks[0])
+                    }
                 } else {
                     // Create a layout into which to place our blocks.
                     let chunks = Layout::default()
@@ -198,6 +207,7 @@ fn main() -> Result<(), reqwest::Error> {
                 } else if let Key::Down = k.as_ref().unwrap() {
                     app.next()
                 } else if let Key::Char('\n') = k.as_ref().unwrap() {
+                    if let None =app.state.selected(){app.state.select(Some(0))}
                     app.input_mode = InputMode::PostView
                 }
             } else if let InputMode::Editing = &app.input_mode {
