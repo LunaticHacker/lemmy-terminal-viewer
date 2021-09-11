@@ -1,4 +1,4 @@
-use super::api::PostInfo;
+use super::api::{CommentInfo, PostInfo};
 use tui::widgets::ListState;
 //Enum for Different Modes
 pub enum InputMode {
@@ -16,6 +16,10 @@ pub struct LApp {
     pub posts: Vec<PostInfo>,
     //State for indexing the list
     pub state: ListState,
+    //List of Comments
+    pub comments: Vec<CommentInfo>,
+    //State for indexing comments
+    pub comment_state: ListState,
     //instance url
     pub instance: String,
 }
@@ -26,7 +30,9 @@ impl Default for LApp {
             input: String::new(),
             input_mode: InputMode::Normal,
             posts: Vec::new(),
+            comments: Vec::new(),
             state: ListState::default(),
+            comment_state: ListState::default(),
             instance: String::from("https://lemmy.ml"),
         }
     }
@@ -67,4 +73,39 @@ impl LApp {
     pub fn unselect(&mut self) {
         self.state.select(None);
     }
+}
+impl LApp {
+    // TODO: Refactor this into one function.
+    pub fn c_next(&mut self) {
+        let i = match self.comment_state.selected() {
+            Some(i) => {
+                if i >= self.comments.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.comment_state.select(Some(i));
+    }
+    pub fn c_previous(&mut self) {
+        let i = match self.comment_state.selected() {
+            Some(i) => {
+                if i == 0 {
+                    self.comments.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.comment_state.select(Some(i));
+    }
+
+    // Unselect the currently selected item if any. The implementation of `ListState` makes
+    // sure that the stored offset is also reset.
+    // pub fn c_unselect(&mut self) {
+    //     self.comment_state.select(None);
+    // }
 }
