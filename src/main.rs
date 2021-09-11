@@ -1,4 +1,6 @@
 mod api;
+mod app;
+use app::{InputMode, LApp};
 use std::env;
 use std::io;
 use std::io::Read;
@@ -7,82 +9,16 @@ use tui::backend::TermionBackend;
 use tui::layout::{Constraint, Direction, Layout};
 use tui::style::{Color, Style};
 use tui::text::Text;
-use tui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph};
+use tui::widgets::{Block, Borders, List, ListItem, Paragraph};
 use tui::Terminal;
-enum InputMode {
-    Normal,
-    Editing,
-    PostView,
-}
-use api::Posts;
-/// App holds the state of the application
-struct App {
-    /// Current value of the input box
-    input: String,
-    /// Current input mode
-    input_mode: InputMode,
-    //List of Posts
-    posts: Vec<Posts>,
-    //State for indexing the list
-    state: ListState,
-    //instance url
-    instance: String,
-}
-
-impl Default for App {
-    fn default() -> App {
-        App {
-            input: String::new(),
-            input_mode: InputMode::Normal,
-            posts: Vec::new(),
-            state: ListState::default(),
-            instance: String::from("https://lemmy.ml"),
-        }
-    }
-}
-
-impl App {
-    // Select the next item. This will not be reflected until the widget is drawn in the
-    // `Terminal::draw` callback using `Frame::render_stateful_widget`.
-    pub fn next(&mut self) {
-        let i = match self.state.selected() {
-            Some(i) => {
-                if i >= self.posts.len() - 1 {
-                    0
-                } else {
-                    i + 1
-                }
-            }
-            None => 0,
-        };
-        self.state.select(Some(i));
-    }
-    pub fn previous(&mut self) {
-        let i = match self.state.selected() {
-            Some(i) => {
-                if i == 0 {
-                    self.posts.len() - 1
-                } else {
-                    i - 1
-                }
-            }
-            None => 0,
-        };
-        self.state.select(Some(i));
-    }
-
-    // Unselect the currently selected item if any. The implementation of `ListState` makes
-    // sure that the stored offset is also reset.
-    pub fn unselect(&mut self) {
-        self.state.select(None);
-    }
-}
 
 fn main() -> Result<(), io::Error> {
-    let mut app = App::default();
+    let mut app = LApp::default();
     let mut args: Vec<String> = env::args().collect();
     if args.len() == 1 {
-        if !(&args[1][0..7]=="https://") {args[1].insert_str(0,"https://")}
+        if !(&args[1][0..7] == "https://") {
+            args[1].insert_str(0, "https://")
+        }
         app.instance = args[1].clone();
     }
 
@@ -185,8 +121,11 @@ fn main() -> Result<(), io::Error> {
                 if let Key::Esc = k.as_ref().unwrap() {
                     app.input_mode = InputMode::Normal;
                 } else if let Key::Char('\n') = k.as_ref().unwrap() {
-                    app.posts =
-                        api::getposts(format!("{}/api/v3/post/list?community_name={}", &app.instance,app.input)).unwrap_or_default();
+                    app.posts = api::getposts(format!(
+                        "{}/api/v3/post/list?community_name={}",
+                        &app.instance, app.input
+                    ))
+                    .unwrap_or_default();
                 } else if let termion::event::Key::Char(c) = k.as_ref().unwrap() {
                     app.input.push(*c);
                 } else if let Key::Backspace = k.as_ref().unwrap() {
