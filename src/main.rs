@@ -13,9 +13,10 @@ use tui::widgets::{Block, Borders, List, ListItem, Paragraph};
 use tui::Terminal;
 
 fn main() -> Result<(), io::Error> {
+    //Collecting the instance from cl agrs defaults to lemmy.ml if not provided  
     let mut app = LApp::default();
     let mut args: Vec<String> = env::args().collect();
-    if args.len() == 1 {
+    if args.len() == 2 {
         if !(&args[1][0..7] == "https://") {
             args[1].insert_str(0, "https://")
         }
