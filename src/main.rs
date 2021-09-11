@@ -9,11 +9,11 @@ use tui::backend::TermionBackend;
 use tui::layout::{Constraint, Direction, Layout};
 use tui::style::{Color, Style};
 use tui::text::Text;
-use tui::widgets::{Block, Borders, List, ListItem, Paragraph};
+use tui::widgets::{Block, Borders, List, ListItem, Paragraph, Wrap};
 use tui::Terminal;
 
 fn main() -> Result<(), io::Error> {
-    //Collecting the instance from cl agrs defaults to lemmy.ml if not provided  
+    //Collecting the instance from cl agrs defaults to lemmy.ml if not provided
     let mut app = LApp::default();
     let mut args: Vec<String> = env::args().collect();
     if args.len() == 2 {
@@ -53,13 +53,14 @@ fn main() -> Result<(), io::Error> {
                         let lines = Text::styled(str, Style::default());
                         let para = Paragraph::new(lines)
                             .block(Block::default().borders(Borders::ALL))
-                            .style(Style::default().fg(Color::White).bg(Color::Black));
+                            .style(Style::default().fg(Color::White).bg(Color::Black))
+                            .wrap(Wrap { trim: true });
                         frame.render_widget(para, chunks[1])
                     }
                     if let Some(url) = url.as_ref() {
                         let lines = Text::styled(url, Style::default());
                         let para = Paragraph::new(lines)
-                            .block(Block::default().title("Body").borders(Borders::ALL))
+                            .block(Block::default().borders(Borders::ALL))
                             .style(Style::default().fg(Color::White).bg(Color::Black));
                         frame.render_widget(para, chunks[0])
                     }
@@ -67,9 +68,7 @@ fn main() -> Result<(), io::Error> {
                     // Create a layout into which to place our blocks.
                     let chunks = Layout::default()
                         .direction(Direction::Vertical)
-                        .constraints(
-                            [Constraint::Percentage(10), Constraint::Percentage(90)].as_ref(),
-                        )
+                        .constraints([Constraint::Length(3), Constraint::Length(7)].as_ref())
                         .split(frame.size());
 
                     // Create a block...
@@ -90,7 +89,7 @@ fn main() -> Result<(), io::Error> {
                         items.push(ListItem::new(post.post.name.as_ref()))
                     }
                     let list = List::new(items)
-                        .block(Block::default().title("List").borders(Borders::ALL))
+                        .block(Block::default().title("Posts").borders(Borders::ALL))
                         .style(Style::default().fg(Color::White))
                         .highlight_symbol("*");
 
@@ -135,6 +134,9 @@ fn main() -> Result<(), io::Error> {
             } else if let InputMode::PostView = &app.input_mode {
                 if let Key::Esc = k.as_ref().unwrap() {
                     app.input_mode = InputMode::Normal;
+                } else if let Key::Char('q') = k.as_ref().unwrap() {
+                    terminal.clear()?;
+                    return Ok(());
                 }
             }
         }
