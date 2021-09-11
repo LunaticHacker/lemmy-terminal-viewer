@@ -1,5 +1,5 @@
-use serde::Deserialize;
-use std::collections::HashMap;
+mod api;
+use std::env;
 use std::io;
 use std::io::Read;
 use termion::{async_stdin, event::Key, input::TermRead, raw::IntoRawMode};
@@ -7,53 +7,14 @@ use tui::backend::TermionBackend;
 use tui::layout::{Constraint, Direction, Layout};
 use tui::style::{Color, Style};
 use tui::text::Text;
-use tui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph,Wrap};
+use tui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph};
 use tui::Terminal;
 enum InputMode {
     Normal,
     Editing,
     PostView,
 }
-#[derive(Deserialize, Debug)]
-pub struct Post {
-    id: i32,
-    name: String,
-    url: Option<String>,
-    body: Option<String>,
-    creator_id: i32,
-    community_id: i32,
-    removed: bool,
-    locked: bool,
-    published: Option<String>,
-    updated: Option<String>,
-    deleted: bool,
-    nsfw: bool,
-    stickied: bool,
-    embed_title: Option<String>,
-    embed_description: Option<String>,
-    embed_html: Option<String>,
-    thumbnail_url: Option<String>,
-    ap_id: Option<String>,
-    local: bool,
-}
-#[derive(Deserialize, Debug)]
-struct Posts {
-    post: Post,
-    #[serde(skip)]
-    creator: Option<HashMap<String, String>>,
-    #[serde(skip)]
-    counts: Option<HashMap<String, String>>,
-    creator_banned_from_community: bool,
-    subscribed: bool,
-    saved: bool,
-    read: bool,
-    creator_blocked: bool,
-    my_vote: Option<u32>,
-}
-#[derive(Deserialize, Debug)]
-struct Obj {
-    posts: Vec<Posts>,
-}
+use api::Posts;
 /// App holds the state of the application
 struct App {
     /// Current value of the input box
@@ -64,6 +25,8 @@ struct App {
     posts: Vec<Posts>,
     //State for indexing the list
     state: ListState,
+    //instance url
+    instance: String,
 }
 
 impl Default for App {
@@ -73,6 +36,7 @@ impl Default for App {
             input_mode: InputMode::Normal,
             posts: Vec::new(),
             state: ListState::default(),
+            instance: String::from("https://lemmy.ml"),
         }
     }
 }
@@ -114,18 +78,24 @@ impl App {
     }
 }
 
-fn main() -> Result<(), reqwest::Error> {
-    // Set up terminal output
-    let stdout = io::stdout().into_raw_mode().unwrap();
-    let backend = TermionBackend::new(stdout);
-    let mut terminal = Terminal::new(backend).unwrap();
+fn main() -> Result<(), io::Error> {
     let mut app = App::default();
+    let mut args: Vec<String> = env::args().collect();
+    if args.len() == 1 {
+        if !(&args[1][0..7]=="https://") {args[1].insert_str(0,"https://")}
+        app.instance = args[1].clone();
+    }
+
+    // Set up terminal output
+    let stdout = io::stdout().into_raw_mode()?;
+    let backend = TermionBackend::new(stdout);
+    let mut terminal = Terminal::new(backend)?;
 
     // Create a separate thread to poll stdin.
     // This provides non-blocking input support.
     let mut asi = async_stdin();
 
-    terminal.clear().unwrap();
+    terminal.clear()?;
     loop {
         // Lock the terminal and start a drawing session.
         terminal
@@ -146,8 +116,7 @@ fn main() -> Result<(), reqwest::Error> {
                         let lines = Text::styled(str, Style::default());
                         let para = Paragraph::new(lines)
                             .block(Block::default().borders(Borders::ALL))
-                            .style(Style::default().fg(Color::White).bg(Color::Black))
-                            .wrap(Wrap { trim: true });
+                            .style(Style::default().fg(Color::White).bg(Color::Black));
                         frame.render_widget(para, chunks[1])
                     }
                     if let Some(url) = url.as_ref() {
@@ -162,7 +131,7 @@ fn main() -> Result<(), reqwest::Error> {
                     let chunks = Layout::default()
                         .direction(Direction::Vertical)
                         .constraints(
-                            [Constraint::Percentage(15), Constraint::Percentage(85)].as_ref(),
+                            [Constraint::Percentage(10), Constraint::Percentage(90)].as_ref(),
                         )
                         .split(frame.size());
 
@@ -197,7 +166,7 @@ fn main() -> Result<(), reqwest::Error> {
         for k in asi.by_ref().keys() {
             if let InputMode::Normal = &app.input_mode {
                 if let Key::Char('q') = k.as_ref().unwrap() {
-                    terminal.clear().unwrap();
+                    terminal.clear()?;
                     return Ok(());
                 } else if let Key::Char('i') = k.as_ref().unwrap() {
                     app.unselect();
@@ -207,15 +176,17 @@ fn main() -> Result<(), reqwest::Error> {
                 } else if let Key::Down = k.as_ref().unwrap() {
                     app.next()
                 } else if let Key::Char('\n') = k.as_ref().unwrap() {
-                    if let None =app.state.selected(){app.state.select(Some(0))}
+                    if let None = app.state.selected() {
+                        app.state.select(Some(0))
+                    }
                     app.input_mode = InputMode::PostView
                 }
             } else if let InputMode::Editing = &app.input_mode {
                 if let Key::Esc = k.as_ref().unwrap() {
                     app.input_mode = InputMode::Normal;
                 } else if let Key::Char('\n') = k.as_ref().unwrap() {
-                    let response = reqwest::blocking::get("https://lemmy.ml/api/v3/post/list")?;
-                    app.posts = response.json::<Obj>()?.posts;
+                    app.posts =
+                        api::getposts(format!("{}/api/v3/post/list?community_name={}", &app.instance,app.input)).unwrap_or_default();
                 } else if let termion::event::Key::Char(c) = k.as_ref().unwrap() {
                     app.input.push(*c);
                 } else if let Key::Backspace = k.as_ref().unwrap() {
