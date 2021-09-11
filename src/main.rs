@@ -55,7 +55,7 @@ fn main() -> Result<(), io::Error> {
                     app.previous()
                 } else if let Key::Down = k.as_ref().unwrap() {
                     app.next()
-                } else if let Key::Char('\n') = k.as_ref().unwrap() {
+                } else if let Key::Right = k.as_ref().unwrap() {
                     app.input_mode = InputMode::PostView
                 }
             } else if let InputMode::Editing = &app.input_mode {
@@ -73,7 +73,7 @@ fn main() -> Result<(), io::Error> {
                     app.input.pop();
                 }
             } else if let InputMode::PostView = &app.input_mode {
-                if let Key::Esc = k.as_ref().unwrap() {
+                if let Key::Left = k.as_ref().unwrap() {
                     app.comments = Vec::new();
                     app.input_mode = InputMode::Normal;
                 } else if let Key::Char('q') = k.as_ref().unwrap() {
