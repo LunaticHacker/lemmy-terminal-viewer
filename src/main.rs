@@ -56,9 +56,6 @@ fn main() -> Result<(), io::Error> {
                 } else if let Key::Down = k.as_ref().unwrap() {
                     app.next()
                 } else if let Key::Char('\n') = k.as_ref().unwrap() {
-                    if let None = app.state.selected() {
-                        app.state.select(Some(0))
-                    }
                     app.input_mode = InputMode::PostView
                 }
             } else if let InputMode::Editing = &app.input_mode {

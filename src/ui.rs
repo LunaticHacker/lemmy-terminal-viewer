@@ -48,13 +48,10 @@ where
             Constraint::Percentage(70),
         ])
         .split(frame.size());
-    let body = &app
-        .posts
-        .get(app.state.selected().unwrap())
-        .unwrap()
+    let body = &app.posts[app.state.selected().unwrap_or(0)]
         .post
         .body;
-    let url = &app.posts[app.state.selected().unwrap()].post.url;
+    let url = &app.posts[app.state.selected().unwrap_or(0)].post.url;
     if let Some(str) = body.as_ref() {
         let lines = Text::styled(str, Style::default());
         let para = Paragraph::new(lines)
