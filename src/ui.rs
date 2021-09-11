@@ -48,9 +48,7 @@ where
             Constraint::Percentage(70),
         ])
         .split(frame.size());
-    let body = &app.posts[app.state.selected().unwrap_or(0)]
-        .post
-        .body;
+    let body = &app.posts[app.state.selected().unwrap_or(0)].post.body;
     let url = &app.posts[app.state.selected().unwrap_or(0)].post.url;
     if let Some(str) = body.as_ref() {
         let lines = Text::styled(str, Style::default());
@@ -73,9 +71,7 @@ where
         //Comment can be null :(
         if let Some(comment) = comment.comment.as_ref() {
             if let Some(content) = &comment.content {
-                if let None = &comment.parent_id {
-                    items.push(ListItem::new(content.as_ref()))
-                }
+                items.push(ListItem::new(content.as_ref()))
             }
         }
     }

@@ -80,12 +80,23 @@ fn main() -> Result<(), io::Error> {
                     terminal.clear()?;
                     return Ok(());
                 } else if let Key::Char('c') = k.as_ref().unwrap() {
-                    app.comments = api::get_comments(format!(
+                    let comments = api::get_comments(format!(
                         "{}/api/v3/post?id={}",
                         &app.instance,
                         app.posts[app.state.selected().unwrap()].post.id
                     ))
                     .unwrap();
+                    let filtered_comments: Vec<api::CommentInfo> = comments
+                        .into_iter()
+                        .filter(|c| {
+                            !c.comment
+                                .as_ref()
+                                .unwrap_or(&api::Comment::default())
+                                .parent_id
+                                .is_some()
+                        })
+                        .collect();
+                    app.comments = filtered_comments;
                 } else if let Key::Up = k.as_ref().unwrap() {
                     app.c_previous()
                 } else if let Key::Down = k.as_ref().unwrap() {
