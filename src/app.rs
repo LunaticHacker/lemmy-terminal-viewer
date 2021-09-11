@@ -1,4 +1,4 @@
-use super::api::Posts;
+use super::api::PostInfo;
 use tui::widgets::ListState;
 //Enum for Different Modes
 pub enum InputMode {
@@ -13,7 +13,7 @@ pub struct LApp {
     /// Current input mode
     pub input_mode: InputMode,
     //List of Posts
-    pub posts: Vec<Posts>,
+    pub posts: Vec<PostInfo>,
     //State for indexing the list
     pub state: ListState,
     //instance url

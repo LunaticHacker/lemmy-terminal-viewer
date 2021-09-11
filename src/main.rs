@@ -121,7 +121,7 @@ fn main() -> Result<(), io::Error> {
                 if let Key::Esc = k.as_ref().unwrap() {
                     app.input_mode = InputMode::Normal;
                 } else if let Key::Char('\n') = k.as_ref().unwrap() {
-                    app.posts = api::getposts(format!(
+                    app.posts = api::get_posts(format!(
                         "{}/api/v3/post/list?community_name={}",
                         &app.instance, app.input
                     ))

@@ -1,6 +1,5 @@
 use serde::Deserialize;
-use std::collections::HashMap;
-//Structs for lemmy Api
+//Structs for Posts
 #[derive(Deserialize, Debug)]
 pub struct Post {
     pub id: i32,
@@ -24,27 +23,54 @@ pub struct Post {
     pub local: bool,
 }
 #[derive(Deserialize, Debug)]
-pub struct Posts {
+pub struct PostInfo {
     pub post: Post,
-    #[serde(skip)]
-    creator: Option<HashMap<String, String>>,
-    #[serde(skip)]
-    counts: Option<HashMap<String, String>>,
-    creator_banned_from_community: bool,
-    subscribed: bool,
-    saved: bool,
-    read: bool,
-    creator_blocked: bool,
-    my_vote: Option<u32>,
+    //There are more fields but we don't care
 }
 #[derive(Deserialize, Debug)]
-pub struct Obj {
-    pub posts: Vec<Posts>,
+pub struct PostObj {
+    pub posts: Vec<PostInfo>,
+}
+//Structs for Comments
+#[derive(Deserialize, Debug)]
+pub struct Comment
+{
+    pub id: i32,
+    pub creator_id: i32,
+    pub post_id: i32,
+    pub parent_id: Option<i32>,
+    pub content: String,
+    pub removed: bool,
+    pub read: bool,
+    pub published: String,
+    pub updated: String,
+    pub deleted: bool,
+    pub ap_id: Option<String>,
+    pub local: bool,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct CommentInfo
+{
+    pub comment: Comment,
+    //There are more fields but we don't care
+}
+
+#[derive(Deserialize,Debug)]
+pub struct CommentObj
+{
+    pub comments: Vec<CommentInfo>,
+    //There are more fields but we don't care
+    
 }
 
 //Api Fetching Functions
 
-pub fn getposts(url: String) -> Result<Vec<Posts>, reqwest::Error> {
+pub fn get_posts(url: String) -> Result<Vec<PostInfo>, reqwest::Error> {
     let response = reqwest::blocking::get(url)?;
-    return Ok(response.json::<Obj>()?.posts);
+    return Ok(response.json::<PostObj>()?.posts);
+}
+pub fn get_comments(url:String)->Result<Vec<CommentInfo>,reqwest::Error>{
+    let response = reqwest::blocking::get(url)?;
+    return Ok(response.json::<CommentObj>()?.comments);
 }
