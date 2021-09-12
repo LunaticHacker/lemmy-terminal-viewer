@@ -100,7 +100,6 @@ fn main() -> Result<(), io::Error> {
                     app.c_next()
                 } else if let Key::Left = k.as_ref().unwrap() {
                     app.replies = Vec::new();
-                    app.input_mode= InputMode::PostView;
                 } else if let Key::Right = k.as_ref().unwrap() {
                     app.replies = app.comments[app.comment_state.selected().unwrap_or(0)]
                         .children
