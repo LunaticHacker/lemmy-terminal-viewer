@@ -81,35 +81,41 @@ impl LApp {
 impl LApp {
     // TODO: Refactor this into one function.
     pub fn c_next(&mut self) {
-        let i = match self.comment_state.selected() {
-            Some(i) => {
-                if i >= self.comments.len() - 1 {
-                    0
-                } else {
-                    i + 1
+        if self.replies.is_empty() {
+            let i = match self.comment_state.selected() {
+                Some(i) => {
+                    if i >= self.comments.len() - 1 {
+                        0
+                    } else {
+                        i + 1
+                    }
                 }
-            }
-            None => 0,
-        };
-        self.comment_state.select(Some(i));
+                None => 0,
+            };
+            self.comment_state.select(Some(i));
+        }
     }
     pub fn c_previous(&mut self) {
-        let i = match self.comment_state.selected() {
-            Some(i) => {
-                if i == 0 {
-                    self.comments.len() - 1
-                } else {
-                    i - 1
+        if self.replies.is_empty() {
+            let i = match self.comment_state.selected() {
+                Some(i) => {
+                    if i == 0 {
+                        self.comments.len() - 1
+                    } else {
+                        i - 1
+                    }
                 }
-            }
-            None => 0,
-        };
-        self.comment_state.select(Some(i));
+                None => 0,
+            };
+            self.comment_state.select(Some(i));
+        }
     }
 
     // Unselect the currently selected item if any. The implementation of `ListState` makes
     // sure that the stored offset is also reset.
     pub fn c_unselect(&mut self) {
-        self.comment_state.select(None);
+        if self.replies.is_empty() {
+            self.comment_state.select(None);
+        }
     }
 }

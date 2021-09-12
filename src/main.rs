@@ -99,13 +99,16 @@ fn main() -> Result<(), io::Error> {
                 } else if let Key::Down = k.as_ref().unwrap() {
                     app.c_next()
                 } else if let Key::Left = k.as_ref().unwrap() {
-                    app.replies = Vec::new();
+                    if !app.replies.is_empty() {
+                        app.replies = Vec::new();
+                    } else {
+                        app.input_mode = InputMode::PostView;
+                    }
                 } else if let Key::Right = k.as_ref().unwrap() {
                     app.replies = app.comments[app.comment_state.selected().unwrap_or(0)]
                         .children
                         .clone();
-                } else if let Key::Char('q') = k.as_ref().unwrap()
-                {
+                } else if let Key::Char('q') = k.as_ref().unwrap() {
                     terminal.clear()?;
                     return Ok(());
                 }

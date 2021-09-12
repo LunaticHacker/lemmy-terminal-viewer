@@ -138,7 +138,7 @@ where
             let para = Paragraph::new(lines)
                 .block(Block::default().borders(Borders::ALL))
                 .style(Style::default().fg(Color::White))
-                .wrap(Wrap{trim:true});
+                .wrap(Wrap { trim: true });
             frame.render_widget(para, chunks[0]);
         }
 
