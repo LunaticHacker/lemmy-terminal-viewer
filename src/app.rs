@@ -1,4 +1,4 @@
-use super::api::{CommentInfo, PostInfo};
+use super::api::{CommentTree, PostInfo};
 use tui::widgets::ListState;
 //Enum for Different Modes
 pub enum InputMode {
@@ -17,7 +17,7 @@ pub struct LApp {
     //State for indexing the list
     pub state: ListState,
     //List of Comments
-    pub comments: Vec<CommentInfo>,
+    pub comments: Vec<CommentTree>,
     //State for indexing comments
     pub comment_state: ListState,
     //instance url
@@ -105,7 +105,7 @@ impl LApp {
 
     // Unselect the currently selected item if any. The implementation of `ListState` makes
     // sure that the stored offset is also reset.
-    // pub fn c_unselect(&mut self) {
-    //     self.comment_state.select(None);
-    // }
+     pub fn c_unselect(&mut self) {
+         self.comment_state.select(None);
+     }
 }

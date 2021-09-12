@@ -69,10 +69,9 @@ where
 
     for comment in &app.comments {
         //Comment can be null :(
-        if let Some(comment) = comment.comment.as_ref() {
-            if let Some(content) = &comment.content {
-                items.push(ListItem::new(content.as_ref()))
-            }
+        if let Some(comment) = comment.comment.comment.as_ref() {
+                items.push(ListItem::new(comment.content.as_ref()))
+            
         }
     }
 

@@ -32,22 +32,53 @@ pub struct PostObj {
     pub posts: Vec<PostInfo>,
 }
 //Structs for Comments
-#[derive(Deserialize, Debug, Default)]
+#[derive(Deserialize, Debug, Default,Clone)]
 pub struct Comment {
-    pub content: Option<String>,
+    pub id: i32,
+    pub content: String,
     pub parent_id: Option<i32>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug,Default,Clone)]
 pub struct CommentInfo {
     pub comment: Option<Comment>,
     //There are more fields but we don't care
 }
 
+
 #[derive(Deserialize, Debug)]
 pub struct CommentObj {
     pub comments: Vec<CommentInfo>,
     //There are more fields but we don't care
+}
+#[derive(Default,Clone)]
+pub struct CommentTree
+{
+    pub comment: CommentInfo,
+    pub children: Vec<CommentTree>
+
+}
+impl CommentTree
+{
+
+    fn new(comment: &CommentInfo) -> Self
+    {
+        Self{comment:comment.clone(),
+        children :vec![]}
+    }
+
+
+    fn fill_children(mut self, comments: &Vec<CommentInfo>) -> Self
+    {
+        for i in  0..comments.len(){
+            let clone = comments.clone();
+            if comments[i].comment.as_ref().unwrap_or(&Comment::default()).parent_id.unwrap_or_default() == self.comment.comment.as_ref().unwrap_or(&Comment::default()).id {
+               self.children.push(CommentTree::new(&comments[i]).fill_children(&clone));
+            }
+          }
+          return self;
+
+    }
 }
 
 //Api Fetching Functions
@@ -56,7 +87,31 @@ pub fn get_posts(url: String) -> Result<Vec<PostInfo>, reqwest::Error> {
     let response = reqwest::blocking::get(url)?;
     return Ok(response.json::<PostObj>()?.posts);
 }
-pub fn get_comments(url: String) -> Result<Vec<CommentInfo>, reqwest::Error> {
+pub fn get_comments(url: String) -> Result<Vec<CommentTree>, reqwest::Error> {
     let response = reqwest::blocking::get(url)?;
-    return Ok(response.json::<CommentObj>()?.comments);
+    let comments =response.json::<CommentObj>()?.comments;
+    let clone = comments.clone();
+    let filtered_comments: Vec<CommentInfo> = comments
+                        .into_iter()
+                        .filter(|c| {
+                            !c.comment
+                                .as_ref()
+                                .unwrap_or(&Comment::default())
+                                .parent_id
+                                .is_some()
+                        })
+                        .collect();
+                        let  result = map_tree(filtered_comments);
+                        //result.iter().map(|r|r.fill_children(&clone)).collect()
+                        return Ok(result.into_iter().map(|r|r.fill_children(&clone)).collect());
+                        
+}
+fn map_tree(list: Vec<CommentInfo>) -> Vec<CommentTree> 
+{
+    list.into_iter().map(|ct|CommentTree
+        {
+            comment: ct,
+            children:vec![],
+        }).collect()
+
 }
