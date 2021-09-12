@@ -37,6 +37,8 @@ fn main() -> Result<(), io::Error> {
             .draw(|mut frame| {
                 if let InputMode::PostView = app.input_mode {
                     ui::draw_post(&mut app, &mut frame)
+                } else if let InputMode::CommentView = app.input_mode {
+                    ui::draw_comment(&mut app, &mut frame)
                 } else {
                     draw_normal(&mut app, &mut frame);
                 }
@@ -61,12 +63,13 @@ fn main() -> Result<(), io::Error> {
             } else if let InputMode::Editing = &app.input_mode {
                 if let Key::Esc = k.as_ref().unwrap() {
                     app.input_mode = InputMode::Normal;
-                } else if let Key::Char('\n') = k.as_ref().unwrap() {
+                } else if let Key::Right = k.as_ref().unwrap() {
                     app.posts = api::get_posts(format!(
                         "{}/api/v3/post/list?community_name={}",
                         &app.instance, app.input
                     ))
                     .unwrap_or_default();
+                    app.input_mode = InputMode::Normal;
                 } else if let termion::event::Key::Char(c) = k.as_ref().unwrap() {
                     app.input.push(*c);
                 } else if let Key::Backspace = k.as_ref().unwrap() {
@@ -79,7 +82,7 @@ fn main() -> Result<(), io::Error> {
                 } else if let Key::Char('q') = k.as_ref().unwrap() {
                     terminal.clear()?;
                     return Ok(());
-                } else if let Key::Char('c') = k.as_ref().unwrap() {
+                } else if let Key::Right = k.as_ref().unwrap() {
                     app.c_unselect();
                     let comments = api::get_comments(format!(
                         "{}/api/v3/post?id={}",
@@ -87,19 +90,25 @@ fn main() -> Result<(), io::Error> {
                         app.posts[app.state.selected().unwrap()].post.id
                     ))
                     .unwrap();
-                    dbg!(
-                        &comments[0].children[0]
-                            .comment
-                            .comment
-                            .as_ref()
-                            .unwrap_or(&api::Comment::default())
-                            .content
-                    );
                     app.comments = comments;
-                } else if let Key::Up = k.as_ref().unwrap() {
+                    app.input_mode = InputMode::CommentView;
+                }
+            } else if let InputMode::CommentView = &app.input_mode {
+                if let Key::Up = k.as_ref().unwrap() {
                     app.c_previous()
                 } else if let Key::Down = k.as_ref().unwrap() {
                     app.c_next()
+                } else if let Key::Left = k.as_ref().unwrap() {
+                    app.replies = Vec::new();
+                    app.input_mode= InputMode::PostView;
+                } else if let Key::Right = k.as_ref().unwrap() {
+                    app.replies = app.comments[app.comment_state.selected().unwrap_or(0)]
+                        .children
+                        .clone();
+                } else if let Key::Char('q') = k.as_ref().unwrap()
+                {
+                    terminal.clear()?;
+                    return Ok(());
                 }
             }
         }

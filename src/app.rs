@@ -5,6 +5,7 @@ pub enum InputMode {
     Normal,
     Editing,
     PostView,
+    CommentView,
 }
 /// App holds the state of the application
 pub struct LApp {
@@ -20,6 +21,8 @@ pub struct LApp {
     pub comments: Vec<CommentTree>,
     //State for indexing comments
     pub comment_state: ListState,
+    //List of replies
+    pub replies: Vec<CommentTree>,
     //instance url
     pub instance: String,
 }
@@ -31,6 +34,7 @@ impl Default for LApp {
             input_mode: InputMode::Normal,
             posts: Vec::new(),
             comments: Vec::new(),
+            replies: Vec::new(),
             state: ListState::default(),
             comment_state: ListState::default(),
             instance: String::from("https://lemmy.ml"),

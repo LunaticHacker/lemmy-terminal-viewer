@@ -19,6 +19,7 @@ where
             InputMode::Normal => Style::default(),
             InputMode::Editing => Style::default().fg(Color::Yellow),
             InputMode::PostView => Style::default(),
+            InputMode::CommentView => Style::default(),
         })
         .block(Block::default().borders(Borders::ALL));
 
@@ -41,7 +42,6 @@ where
     B: Backend,
 {
     let chunks;
-    // .split(frame.size());
     let body = &app.posts[app.state.selected().unwrap_or(0)].post.body;
     let url = &app.posts[app.state.selected().unwrap_or(0)].post.url;
     if let (Some(str), Some(url)) = (body.as_ref(), url.as_ref()) {
@@ -99,4 +99,62 @@ where
     //     .style(Style::default().fg(Color::White).bg(Color::Black))
     //     .highlight_symbol(">>");
     // frame.render_stateful_widget(list, chunks[2], &mut app.comment_state);
+}
+
+pub fn draw_comment<B>(app: &mut LApp, frame: &mut Frame<B>)
+where
+    B: Backend,
+{
+    let mut items = vec![];
+
+    for comment in &app.comments {
+        //Comment can be null :(
+        if let Some(comment) = comment.comment.comment.as_ref() {
+            items.push(ListItem::new(comment.content.as_ref()))
+        }
+    }
+    if let (_, true) = (&app.comments, app.replies.is_empty()) {
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(100)])
+            .split(frame.size());
+        let list = List::new(items)
+            .block(Block::default().title("Comments").borders(Borders::ALL))
+            .style(Style::default().fg(Color::White))
+            .highlight_symbol("*");
+        frame.render_stateful_widget(list, chunks[0], &mut app.comment_state);
+    } else if let (_, false) = (&app.comments, app.replies.is_empty()) {
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+            .split(frame.size());
+
+        if let Some(top_comment) = &app.comments[app.comment_state.selected().unwrap_or(0)]
+            .comment
+            .comment
+            .as_ref()
+        {
+            let lines = Text::styled(top_comment.content.clone(), Style::default());
+            let para = Paragraph::new(lines)
+                .block(Block::default().borders(Borders::ALL))
+                .style(Style::default().fg(Color::White))
+                .wrap(Wrap{trim:true});
+            frame.render_widget(para, chunks[0]);
+        }
+
+        let mut items = vec![];
+
+        for comment in &app.replies {
+            //Comment can be null :(
+            if let Some(comment) = comment.comment.comment.as_ref() {
+                items.push(ListItem::new(comment.content.as_ref()))
+            }
+        }
+
+        let list = List::new(items)
+            .block(Block::default().title("Comments").borders(Borders::ALL))
+            .style(Style::default().fg(Color::White))
+            .highlight_symbol("*");
+        frame.render_widget(list, chunks[1]);
+    }
 }
