@@ -105,7 +105,7 @@ impl LApp {
 
     // Unselect the currently selected item if any. The implementation of `ListState` makes
     // sure that the stored offset is also reset.
-     pub fn c_unselect(&mut self) {
-         self.comment_state.select(None);
-     }
+    pub fn c_unselect(&mut self) {
+        self.comment_state.select(None);
+    }
 }

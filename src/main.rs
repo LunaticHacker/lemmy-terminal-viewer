@@ -87,7 +87,14 @@ fn main() -> Result<(), io::Error> {
                         app.posts[app.state.selected().unwrap()].post.id
                     ))
                     .unwrap();
-                    dbg!(&comments[0].children[0].comment.comment.as_ref().unwrap_or(&api::Comment::default()).content);
+                    dbg!(
+                        &comments[0].children[0]
+                            .comment
+                            .comment
+                            .as_ref()
+                            .unwrap_or(&api::Comment::default())
+                            .content
+                    );
                     app.comments = comments;
                 } else if let Key::Up = k.as_ref().unwrap() {
                     app.c_previous()

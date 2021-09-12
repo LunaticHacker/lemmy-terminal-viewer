@@ -40,44 +40,63 @@ pub fn draw_post<B>(app: &mut LApp, frame: &mut Frame<B>)
 where
     B: Backend,
 {
-    let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Percentage(10),
-            Constraint::Percentage(20),
-            Constraint::Percentage(70),
-        ])
-        .split(frame.size());
+    let chunks;
+    // .split(frame.size());
     let body = &app.posts[app.state.selected().unwrap_or(0)].post.body;
     let url = &app.posts[app.state.selected().unwrap_or(0)].post.url;
-    if let Some(str) = body.as_ref() {
+    if let (Some(str), Some(url)) = (body.as_ref(), url.as_ref()) {
+        chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(30), Constraint::Percentage(70)])
+            .split(frame.size());
+
+        let lines = Text::styled(url, Style::default());
+        let para_ = Paragraph::new(lines)
+            .block(Block::default().borders(Borders::ALL))
+            .style(Style::default().fg(Color::White));
         let lines = Text::styled(str, Style::default());
         let para = Paragraph::new(lines)
             .block(Block::default().borders(Borders::ALL))
-            .style(Style::default().fg(Color::White).bg(Color::Black))
+            .style(Style::default().fg(Color::White))
             .wrap(Wrap { trim: true });
-        frame.render_widget(para, chunks[1])
-    }
-    if let Some(url) = url.as_ref() {
+        frame.render_widget(para_, chunks[1]);
+        frame.render_widget(para, chunks[0])
+    } else if let (None, Some(url)) = (body.as_ref(), url.as_ref()) {
+        chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(100)])
+            .split(frame.size());
+
         let lines = Text::styled(url, Style::default());
         let para = Paragraph::new(lines)
             .block(Block::default().borders(Borders::ALL))
-            .style(Style::default().fg(Color::White).bg(Color::Black));
+            .style(Style::default().fg(Color::White));
+        frame.render_widget(para, chunks[0])
+    } else if let (Some(str), None) = (body.as_ref(), url.as_ref()) {
+        chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(100)])
+            .split(frame.size());
+        let lines = Text::styled(str, Style::default());
+        let para = Paragraph::new(lines)
+            .block(Block::default().borders(Borders::ALL))
+            .style(Style::default().fg(Color::White))
+            .wrap(Wrap { trim: true });
         frame.render_widget(para, chunks[0])
     }
-    let mut items = vec![];
+    // let mut items = vec![];
 
-    for comment in &app.comments {
-        //Comment can be null :(
-        if let Some(comment) = comment.comment.comment.as_ref() {
-                items.push(ListItem::new(comment.content.as_ref()))
-            
-        }
-    }
+    // for comment in &app.comments {
+    //     //Comment can be null :(
+    //     if let Some(comment) = comment.comment.comment.as_ref() {
+    //             items.push(ListItem::new(comment.content.as_ref()))
 
-    let list = List::new(items)
-        .block(Block::default().title("Comments").borders(Borders::ALL))
-        .style(Style::default().fg(Color::White).bg(Color::Black))
-        .highlight_symbol(">>");
-    frame.render_stateful_widget(list, chunks[2], &mut app.comment_state);
+    //     }
+    // }
+
+    // let list = List::new(items)
+    //     .block(Block::default().title("Comments").borders(Borders::ALL))
+    //     .style(Style::default().fg(Color::White).bg(Color::Black))
+    //     .highlight_symbol(">>");
+    // frame.render_stateful_widget(list, chunks[2], &mut app.comment_state);
 }
