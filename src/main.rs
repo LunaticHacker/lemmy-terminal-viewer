@@ -58,10 +58,12 @@ fn main() -> Result<(), io::Error> {
                 } else if let Key::Down = k.as_ref().unwrap() {
                     app.next()
                 } else if let Key::Right = k.as_ref().unwrap() {
-                    app.input_mode = InputMode::PostView
+                    if !app.posts.is_empty() {
+                        app.input_mode = InputMode::PostView
+                    }
                 }
             } else if let InputMode::Editing = &app.input_mode {
-                if let Key::Esc = k.as_ref().unwrap() {
+                if let Key::Left = k.as_ref().unwrap() {
                     app.input_mode = InputMode::Normal;
                 } else if let Key::Right = k.as_ref().unwrap() {
                     app.posts = api::get_posts(format!(
