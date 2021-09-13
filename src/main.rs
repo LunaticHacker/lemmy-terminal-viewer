@@ -20,6 +20,7 @@ fn main() -> Result<(), io::Error> {
         }
         app.instance = args[1].clone();
     }
+    app.posts = api::get_posts(format!("{}/api/v3/post/list", &app.instance)).unwrap_or_default();
 
     // Set up terminal output
     let stdout = io::stdout().into_raw_mode()?;
@@ -44,7 +45,7 @@ fn main() -> Result<(), io::Error> {
                 }
             })
             .unwrap();
-
+        //Event handling, TODO: Refactor this abomination
         for k in asi.by_ref().keys() {
             if let InputMode::Normal = &app.input_mode {
                 if let Key::Char('q') = k.as_ref().unwrap() {
@@ -84,7 +85,7 @@ fn main() -> Result<(), io::Error> {
                 } else if let Key::Char('q') = k.as_ref().unwrap() {
                     terminal.clear()?;
                     return Ok(());
-                } else if let Key::Right = k.as_ref().unwrap() {
+                } else if let Key::Down = k.as_ref().unwrap() {
                     app.c_unselect();
                     let comments = api::get_comments(format!(
                         "{}/api/v3/post?id={}",
@@ -97,9 +98,13 @@ fn main() -> Result<(), io::Error> {
                 }
             } else if let InputMode::CommentView = &app.input_mode {
                 if let Key::Up = k.as_ref().unwrap() {
-                    app.c_previous()
+                    if !app.comments.is_empty() {
+                        app.c_previous()
+                    }
                 } else if let Key::Down = k.as_ref().unwrap() {
-                    app.c_next()
+                    if !app.comments.is_empty() {
+                        app.c_next()
+                    }
                 } else if let Key::Left = k.as_ref().unwrap() {
                     if !app.replies.is_empty() {
                         app.replies = Vec::new();
@@ -107,9 +112,11 @@ fn main() -> Result<(), io::Error> {
                         app.input_mode = InputMode::PostView;
                     }
                 } else if let Key::Right = k.as_ref().unwrap() {
-                    app.replies = app.comments[app.comment_state.selected().unwrap_or(0)]
-                        .children
-                        .clone();
+                    if !app.comments.is_empty() {
+                        app.replies = app.comments[app.comment_state.selected().unwrap_or(0)]
+                            .children
+                            .clone();
+                    }
                 } else if let Key::Char('q') = k.as_ref().unwrap() {
                     terminal.clear()?;
                     return Ok(());
