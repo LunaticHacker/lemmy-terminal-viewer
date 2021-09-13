@@ -31,7 +31,6 @@ where
     }
     let list = List::new(items)
         .block(Block::default().title("Posts").borders(Borders::ALL))
-        .style(Style::default().fg(Color::White))
         .highlight_symbol("*");
 
     frame.render_stateful_widget(list, chunks[1], &mut app.state);
@@ -51,13 +50,10 @@ where
             .split(frame.size());
 
         let lines = Text::styled(url, Style::default());
-        let para_ = Paragraph::new(lines)
-            .block(Block::default().borders(Borders::ALL))
-            .style(Style::default().fg(Color::White));
+        let para_ = Paragraph::new(lines).block(Block::default().borders(Borders::ALL));
         let lines = Text::styled(str, Style::default());
         let para = Paragraph::new(lines)
             .block(Block::default().borders(Borders::ALL))
-            .style(Style::default().fg(Color::White))
             .wrap(Wrap { trim: true });
         frame.render_widget(para_, chunks[1]);
         frame.render_widget(para, chunks[0])
@@ -68,9 +64,7 @@ where
             .split(frame.size());
 
         let lines = Text::styled(url, Style::default());
-        let para = Paragraph::new(lines)
-            .block(Block::default().borders(Borders::ALL))
-            .style(Style::default().fg(Color::White));
+        let para = Paragraph::new(lines).block(Block::default().borders(Borders::ALL));
         frame.render_widget(para, chunks[0])
     } else if let (Some(str), None) = (body.as_ref(), url.as_ref()) {
         chunks = Layout::default()
@@ -80,25 +74,9 @@ where
         let lines = Text::styled(str, Style::default());
         let para = Paragraph::new(lines)
             .block(Block::default().borders(Borders::ALL))
-            .style(Style::default().fg(Color::White))
             .wrap(Wrap { trim: true });
         frame.render_widget(para, chunks[0])
     }
-    // let mut items = vec![];
-
-    // for comment in &app.comments {
-    //     //Comment can be null :(
-    //     if let Some(comment) = comment.comment.comment.as_ref() {
-    //             items.push(ListItem::new(comment.content.as_ref()))
-
-    //     }
-    // }
-
-    // let list = List::new(items)
-    //     .block(Block::default().title("Comments").borders(Borders::ALL))
-    //     .style(Style::default().fg(Color::White).bg(Color::Black))
-    //     .highlight_symbol(">>");
-    // frame.render_stateful_widget(list, chunks[2], &mut app.comment_state);
 }
 
 pub fn draw_comment<B>(app: &mut LApp, frame: &mut Frame<B>)
@@ -120,7 +98,6 @@ where
             .split(frame.size());
         let list = List::new(items)
             .block(Block::default().title("Comments").borders(Borders::ALL))
-            .style(Style::default().fg(Color::White))
             .highlight_symbol("*");
         frame.render_stateful_widget(list, chunks[0], &mut app.comment_state);
     } else if let (_, false) = (&app.comments, app.replies.is_empty()) {
@@ -137,7 +114,6 @@ where
             let lines = Text::styled(top_comment.content.clone(), Style::default());
             let para = Paragraph::new(lines)
                 .block(Block::default().borders(Borders::ALL))
-                .style(Style::default().fg(Color::White))
                 .wrap(Wrap { trim: true });
             frame.render_widget(para, chunks[0]);
         }
@@ -153,7 +129,6 @@ where
 
         let list = List::new(items)
             .block(Block::default().title("Comments").borders(Borders::ALL))
-            .style(Style::default().fg(Color::White))
             .highlight_symbol("*");
         frame.render_widget(list, chunks[1]);
     }
