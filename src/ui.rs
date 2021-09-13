@@ -55,8 +55,8 @@ where
         let para = Paragraph::new(lines)
             .block(Block::default().borders(Borders::ALL))
             .wrap(Wrap { trim: true });
-        frame.render_widget(para_, chunks[1]);
-        frame.render_widget(para, chunks[0])
+        frame.render_widget(para_, chunks[0]);
+        frame.render_widget(para, chunks[1])
     } else if let (None, Some(url)) = (body.as_ref(), url.as_ref()) {
         chunks = Layout::default()
             .direction(Direction::Vertical)
