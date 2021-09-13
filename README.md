@@ -1,6 +1,6 @@
 # Lemmy-Terminal-Viewer
 
-This app is a  WIP
+This app is a  WIP and currently supports Redox, Mac OS X, and Linux (or, in general, ANSI terminals).
 
 ## Install and Usage (for now)
 
