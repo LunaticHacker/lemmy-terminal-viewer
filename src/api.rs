@@ -106,12 +106,23 @@ impl LoginForm {
 
 //Api Fetching Functions
 
-pub fn get_posts(url: String) -> Result<Vec<PostInfo>, reqwest::Error> {
-    let response = reqwest::blocking::get(url)?;
+pub fn get_posts(url: String, auth: &str) -> Result<Vec<PostInfo>, reqwest::Error> {
+    let response;
+    if auth.is_empty() {
+        response = reqwest::blocking::get(url)?;
+    } else {
+        //type=Subscribed is fine for now but in the future we should let the user choose the sort type
+        response = reqwest::blocking::get(url + "auth=" + &auth + "&type_=Subscribed")?
+    }
     return Ok(response.json::<PostObj>()?.posts);
 }
-pub fn get_comments(url: String) -> Result<Vec<CommentTree>, reqwest::Error> {
-    let response = reqwest::blocking::get(url)?;
+pub fn get_comments(url: String, auth: &str) -> Result<Vec<CommentTree>, reqwest::Error> {
+    let response;
+    if auth.is_empty() {
+        response = reqwest::blocking::get(url)?;
+    } else {
+        response = reqwest::blocking::get(url + "auth=" + &auth)?
+    }
     let comments = response.json::<CommentObj>()?.comments;
     let clone = comments.clone();
     let filtered_comments: Vec<CommentInfo> = comments

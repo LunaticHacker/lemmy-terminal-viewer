@@ -3,7 +3,9 @@ mod app;
 mod auth;
 mod ui;
 use app::{InputMode, LApp};
+use directories::ProjectDirs;
 use std::env;
+use std::fs;
 use std::io;
 use std::io::Read;
 use termion::{async_stdin, event::Key, input::TermRead, raw::IntoRawMode};
@@ -11,24 +13,42 @@ use tui::backend::TermionBackend;
 use tui::Terminal;
 
 fn main() -> Result<(), io::Error> {
-    //Collecting the instance from cl agrs defaults to lemmy.ml if not provided
     let mut app = LApp::default();
     let mut args: Vec<String> = env::args().collect();
-    if args.len() == 2 {
-        if &args[1][0..5] == "login" {
-            match auth::login() {
-                Ok(_) => return Ok(()),
-                Err(e) => return Err(e),
-            };
-        } else {
+
+    match args.len() {
+        2 => {
+            if &args[1] == "login" {
+                match auth::login() {
+                    Ok(_) => {}
+                    Err(e) => return Err(e),
+                };
+            } else {
+                //TODO : make a utils file and move util functions like this there
+                if !(args[1].starts_with("https://")) {
+                    args[1].insert_str(0, "https://")
+                }
+                app.instance = args[1].clone();
+            }
+        }
+        3 => {
             if !(args[1].starts_with("https://")) {
                 args[1].insert_str(0, "https://")
             }
             app.instance = args[1].clone();
+            if let Some(proj_dirs) = ProjectDirs::from("dev", "ltv", "ltv") {
+                let config: auth::Config = toml::from_str(
+                    &fs::read_to_string(&proj_dirs.config_dir().join("ltv.toml"))
+                        .unwrap_or_default(),
+                )
+                .unwrap_or_default();
+                app.auth = config.instancelist.instances[&app.instance].userlist[&args[2]].clone();
+            }
         }
+        _ => {}
     }
-    app.posts = api::get_posts(format!("{}/api/v3/post/list", &app.instance)).unwrap_or_default();
-
+    app.posts = api::get_posts(format!("{}/api/v3/post/list?", &app.instance), &app.auth)
+        .unwrap_or_default();
     // Set up terminal output
     let stdout = io::stdout().into_raw_mode()?;
     let backend = TermionBackend::new(stdout);
@@ -74,10 +94,13 @@ fn main() -> Result<(), io::Error> {
                 if let Key::Left = k.as_ref().unwrap() {
                     app.input_mode = InputMode::Normal;
                 } else if let Key::Right = k.as_ref().unwrap() {
-                    app.posts = api::get_posts(format!(
-                        "{}/api/v3/post/list?community_name={}",
-                        &app.instance, app.input
-                    ))
+                    app.posts = api::get_posts(
+                        format!(
+                            "{}/api/v3/post/list?community_name={}&",
+                            &app.instance, app.input
+                        ),
+                        &app.auth,
+                    )
                     .unwrap_or_default();
                     app.input_mode = InputMode::Normal;
                 } else if let termion::event::Key::Char(c) = k.as_ref().unwrap() {
@@ -94,11 +117,14 @@ fn main() -> Result<(), io::Error> {
                     return Ok(());
                 } else if let Key::Down = k.as_ref().unwrap() {
                     app.c_unselect();
-                    let comments = api::get_comments(format!(
-                        "{}/api/v3/post?id={}",
-                        &app.instance,
-                        app.posts[app.state.selected().unwrap()].post.id
-                    ))
+                    let comments = api::get_comments(
+                        format!(
+                            "{}/api/v3/post?id={}&",
+                            &app.instance,
+                            app.posts[app.state.selected().unwrap()].post.id
+                        ),
+                        &app.auth,
+                    )
                     .unwrap();
                     app.comments = comments;
                     app.input_mode = InputMode::CommentView;

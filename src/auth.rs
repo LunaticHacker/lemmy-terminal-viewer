@@ -7,17 +7,17 @@ use std::io::{stdin, Error, ErrorKind, Write};
 use toml;
 
 #[derive(Default, Deserialize, Serialize, Debug)]
-struct Config {
-    instancelist: InstanceList,
+pub struct Config {
+    pub instancelist: InstanceList,
 }
 
 #[derive(Default, Deserialize, Serialize, Debug)]
-struct InstanceList {
-    instances: HashMap<String, UserList>,
+pub struct InstanceList {
+    pub instances: HashMap<String, UserList>,
 }
 #[derive(Default, Deserialize, Serialize, Debug)]
-struct UserList {
-    userlist: HashMap<String, String>,
+pub struct UserList {
+    pub userlist: HashMap<String, String>,
 }
 
 pub fn login() -> Result<(), Error> {
@@ -46,7 +46,6 @@ pub fn login() -> Result<(), Error> {
             if !jwt.is_empty() {
                 println!("Login successful");
                 if let Some(proj_dirs) = ProjectDirs::from("dev", "ltv", "ltv") {
-                    dbg!(proj_dirs.config_dir().join("ltv.toml"));
                     fs::create_dir_all(proj_dirs.config_dir())?;
                     let mut config_file = fs::OpenOptions::new()
                         .write(true)
@@ -70,7 +69,6 @@ pub fn login() -> Result<(), Error> {
                 } else {
                     Err(Error::new(ErrorKind::Other, "Couldn't save login details"))
                 }
-                //Ok(())
             } else {
                 Err(Error::new(ErrorKind::Other, "Login Failed"))
             }

@@ -25,6 +25,8 @@ pub struct LApp {
     pub replies: Vec<CommentTree>,
     //instance url
     pub instance: String,
+    //jwt key
+    pub auth: String,
 }
 
 impl Default for LApp {
@@ -38,6 +40,7 @@ impl Default for LApp {
             state: ListState::default(),
             comment_state: ListState::default(),
             instance: String::from("https://lemmy.ml"),
+            auth: String::from(""),
         }
     }
 }
