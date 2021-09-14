@@ -1,15 +1,32 @@
 # Lemmy-Terminal-Viewer
 
-This app is a  WIP and currently supports Redox, Mac OS X, and Linux (or, in general, ANSI terminals).
+A WIP  Terminal User Interface for lemmy for Linux Terminals (should work in MacOs but i can't test)
 
 ## Install and Usage (for now)
 
-* clone the repo
+You will need the rust toolchain to run the project until it's relatively stable to produce releases
+for now you'll have to clone the repo and build locally to use it.
+
+### Loggin In
+
+You can log in to as many accounts as you want in any number of instances
+
+To add an account run
 
 ```
-cargo run "instance.url"
+cargo run login
 ```
-if instance url is not provided it will default to lemmy.ml.
+You will be prompted to provide login details, if you successfully authenticate you will be redirected to your Subscribed Feed :);
+
+To log in to an already added accouunt run
+```
+cargo run instance.url username_or_email
+```
+
+Or you can always browse without logging in by running
+```
+cargo run instance.url
+```
 
 ### Navigation
 
@@ -26,8 +43,6 @@ if instance url is not provided it will default to lemmy.ml.
 In the default view press "i" to enter edit-mode to select community, enter the name of community and press Right arrow to submit. use Left arrow to exit edit mode.
 
 ## Planned Features
-
--  Auth
 -  Configs for several aspects of the app including but not limited to theming
 -  view N-level Deep nested comments
 -  parse and render markdown of post and comments
