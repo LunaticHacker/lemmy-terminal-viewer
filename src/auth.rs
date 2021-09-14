@@ -62,9 +62,15 @@ pub fn login() -> Result<(), Error> {
                         .userlist
                         .insert(login, jwt);
                     let new_config = toml::to_string(&toml).unwrap_or_default();
-                    write!(config_file, "{}", new_config);
+                    if let Ok(_) = write!(config_file, "{}", new_config) {
+                        Ok(())
+                    } else {
+                        Err(Error::new(ErrorKind::Other, "Couldn't save login details"))
+                    }
+                } else {
+                    Err(Error::new(ErrorKind::Other, "Couldn't save login details"))
                 }
-                Ok(())
+                //Ok(())
             } else {
                 Err(Error::new(ErrorKind::Other, "Login Failed"))
             }
