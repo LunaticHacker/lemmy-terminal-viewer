@@ -1,29 +1,26 @@
-use directories::ProjectDirs;
 use super::api;
+use directories::ProjectDirs;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::io::{Error,ErrorKind, Write,stdin};
 use std::fs;
+use std::io::{stdin, Error, ErrorKind, Write};
 use toml;
-use serde::{Deserialize,Serialize};
 
-#[derive(Default,Deserialize,Serialize,Debug)]
-struct Config
-{
-    instancelist: InstanceList
+#[derive(Default, Deserialize, Serialize, Debug)]
+struct Config {
+    instancelist: InstanceList,
 }
 
-
-#[derive(Default,Deserialize,Serialize,Debug)]
+#[derive(Default, Deserialize, Serialize, Debug)]
 struct InstanceList {
     instances: HashMap<String, UserList>,
 }
-#[derive(Default,Deserialize,Serialize,Debug)]
+#[derive(Default, Deserialize, Serialize, Debug)]
 struct UserList {
-    userlist:HashMap<String,String>,
+    userlist: HashMap<String, String>,
 }
 
 pub fn login() -> Result<(), Error> {
-    
     let reader = stdin();
     let mut instance = String::new();
     let mut login = String::new();
@@ -40,20 +37,32 @@ pub fn login() -> Result<(), Error> {
     if !(instance.starts_with("https://")) {
         instance.insert_str(0, "https://")
     }
-    match api::login(format!("{}/api/v3/user/login", instance), login.clone(), pass) {
+    match api::login(
+        format!("{}/api/v3/user/login", instance),
+        login.clone(),
+        pass,
+    ) {
         Ok(jwt) => {
             if !jwt.is_empty() {
                 println!("Login successful");
-                if let Some(proj_dirs) = ProjectDirs::from("dev", "ltv",  "ltv") {
+                if let Some(proj_dirs) = ProjectDirs::from("dev", "ltv", "ltv") {
                     dbg!(proj_dirs.config_dir().join("ltv.toml"));
                     fs::create_dir_all(proj_dirs.config_dir())?;
-                    let mut config_file = fs::OpenOptions::new().write(true).create(true).open(&proj_dirs.config_dir().join("ltv.toml"))?;
-                    let config = fs::read_to_string(&proj_dirs.config_dir().join("ltv.toml")).unwrap_or_default();
-                    let mut toml:Config = toml::from_str(&config).unwrap_or_default();
-                    toml.instancelist.instances.entry(instance).or_insert(UserList::default()).
-                    userlist.insert(login,jwt);
+                    let mut config_file = fs::OpenOptions::new()
+                        .write(true)
+                        .create(true)
+                        .open(&proj_dirs.config_dir().join("ltv.toml"))?;
+                    let config = fs::read_to_string(&proj_dirs.config_dir().join("ltv.toml"))
+                        .unwrap_or_default();
+                    let mut toml: Config = toml::from_str(&config).unwrap_or_default();
+                    toml.instancelist
+                        .instances
+                        .entry(instance)
+                        .or_insert(UserList::default())
+                        .userlist
+                        .insert(login, jwt);
                     let new_config = toml::to_string(&toml).unwrap_or_default();
-                    write!(config_file,"{}",new_config);
+                    write!(config_file, "{}", new_config);
                 }
                 Ok(())
             } else {
@@ -62,7 +71,7 @@ pub fn login() -> Result<(), Error> {
         }
         Err(e) => {
             println!("Something went wrong {}", e);
-            Err(Error::new(ErrorKind::Other, e)) 
+            Err(Error::new(ErrorKind::Other, e))
         }
     }
 }
