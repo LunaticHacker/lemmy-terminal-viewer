@@ -86,6 +86,23 @@ impl CommentTree {
         return self;
     }
 }
+#[derive(Deserialize)]
+struct LoginResponse {
+    jwt: Option<String>,
+}
+#[derive(serde::Serialize)]
+pub struct LoginForm {
+    username_or_email: String,
+    password: String,
+}
+impl LoginForm {
+    pub fn new(login: String, pass: String) -> Self {
+        Self {
+            username_or_email: login,
+            password: pass,
+        }
+    }
+}
 
 //Api Fetching Functions
 
@@ -114,6 +131,14 @@ pub fn get_comments(url: String) -> Result<Vec<CommentTree>, reqwest::Error> {
         .map(|r| r.fill_children(&clone))
         .collect());
 }
+
+pub fn login(url: String, login: String, pass: String) -> Result<String, reqwest::Error> {
+    let client = reqwest::blocking::Client::new();
+    let response = client.post(url).json(&LoginForm::new(login, pass)).send()?;
+    return Ok(response.json::<LoginResponse>()?.jwt.unwrap_or_default());
+}
+
+//utils
 fn map_tree(list: Vec<CommentInfo>) -> Vec<CommentTree> {
     list.into_iter()
         .map(|ct| CommentTree {

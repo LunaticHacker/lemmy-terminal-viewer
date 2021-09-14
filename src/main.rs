@@ -1,5 +1,6 @@
 mod api;
 mod app;
+mod auth;
 mod ui;
 use app::{InputMode, LApp};
 use std::env;
@@ -8,17 +9,23 @@ use std::io::Read;
 use termion::{async_stdin, event::Key, input::TermRead, raw::IntoRawMode};
 use tui::backend::TermionBackend;
 use tui::Terminal;
-use ui::draw_normal;
 
 fn main() -> Result<(), io::Error> {
     //Collecting the instance from cl agrs defaults to lemmy.ml if not provided
     let mut app = LApp::default();
     let mut args: Vec<String> = env::args().collect();
     if args.len() == 2 {
-        if !(&args[1][0..7] == "https://") {
-            args[1].insert_str(0, "https://")
+        if &args[1][0..5] == "login" {
+            match auth::login() {
+                Ok(_) => return Ok(()),
+                Err(e) => return Err(e),
+            };
+        } else {
+            if !(args[1].starts_with("https://")) {
+                args[1].insert_str(0, "https://")
+            }
+            app.instance = args[1].clone();
         }
-        app.instance = args[1].clone();
     }
     app.posts = api::get_posts(format!("{}/api/v3/post/list", &app.instance)).unwrap_or_default();
 
@@ -41,7 +48,7 @@ fn main() -> Result<(), io::Error> {
                 } else if let InputMode::CommentView = app.input_mode {
                     ui::draw_comment(&mut app, &mut frame)
                 } else {
-                    draw_normal(&mut app, &mut frame);
+                    ui::draw_normal(&mut app, &mut frame);
                 }
             })
             .unwrap();
