@@ -2,6 +2,7 @@ mod api;
 mod app;
 mod auth;
 mod ui;
+mod utils;
 use app::{InputMode, LApp};
 use directories::ProjectDirs;
 use std::env;
@@ -14,7 +15,7 @@ use tui::Terminal;
 
 fn main() -> Result<(), io::Error> {
     let mut app = LApp::default();
-    let mut args: Vec<String> = env::args().collect();
+    let args: Vec<String> = env::args().collect();
 
     match args.len() {
         2 => {
@@ -24,18 +25,11 @@ fn main() -> Result<(), io::Error> {
                     Err(e) => return Err(e),
                 };
             } else {
-                //TODO : make a utils file and move util functions like this there
-                if !(args[1].starts_with("https://")) {
-                    args[1].insert_str(0, "https://")
-                }
-                app.instance = args[1].clone();
+                app.instance = utils::prepend_https(args[1].clone());
             }
         }
         3 => {
-            if !(args[1].starts_with("https://")) {
-                args[1].insert_str(0, "https://")
-            }
-            app.instance = args[1].clone();
+            app.instance = utils::prepend_https(args[1].clone());
             if let Some(proj_dirs) = ProjectDirs::from("dev", "ltv", "ltv") {
                 let config: auth::Config = toml::from_str(
                     &fs::read_to_string(&proj_dirs.config_dir().join("ltv.toml"))

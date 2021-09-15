@@ -1,3 +1,4 @@
+use super::utils;
 use serde::Deserialize;
 //Structs for Posts
 #[derive(Deserialize, Debug)]
@@ -135,7 +136,7 @@ pub fn get_comments(url: String, auth: &str) -> Result<Vec<CommentTree>, reqwest
                 .is_some()
         })
         .collect();
-    let result = map_tree(filtered_comments);
+    let result = utils::map_tree(filtered_comments);
     //result.iter().map(|r|r.fill_children(&clone)).collect()
     return Ok(result
         .into_iter()
@@ -147,14 +148,4 @@ pub fn login(url: String, login: String, pass: String) -> Result<String, reqwest
     let client = reqwest::blocking::Client::new();
     let response = client.post(url).json(&LoginForm::new(login, pass)).send()?;
     return Ok(response.json::<LoginResponse>()?.jwt.unwrap_or_default());
-}
-
-//utils
-fn map_tree(list: Vec<CommentInfo>) -> Vec<CommentTree> {
-    list.into_iter()
-        .map(|ct| CommentTree {
-            comment: ct,
-            children: vec![],
-        })
-        .collect()
 }
