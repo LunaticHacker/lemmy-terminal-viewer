@@ -107,13 +107,12 @@ impl LoginForm {
 
 //Api Fetching Functions
 
-pub fn get_posts(url: String, auth: &str) -> Result<Vec<PostInfo>, reqwest::Error> {
+pub fn get_posts(url: String, auth: &str, config: &str) -> Result<Vec<PostInfo>, reqwest::Error> {
     let response;
     if auth.is_empty() {
-        response = reqwest::blocking::get(url)?;
+        response = reqwest::blocking::get(url + config)?;
     } else {
-        //type=Subscribed is fine for now but in the future we should let the user choose the sort type
-        response = reqwest::blocking::get(url + "auth=" + &auth + "&type_=Subscribed")?
+        response = reqwest::blocking::get(url + "auth=" + &auth + config)?
     }
     return Ok(response.json::<PostObj>()?.posts);
 }

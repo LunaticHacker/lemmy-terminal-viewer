@@ -7,7 +7,7 @@ use std::io::{stdin, Error, ErrorKind, Write};
 use toml;
 
 #[derive(Default, Deserialize, Serialize, Debug)]
-pub struct Config {
+pub struct AuthConfig {
     pub instancelist: InstanceList,
 }
 
@@ -48,10 +48,10 @@ pub fn login() -> Result<(String, String), Error> {
                     let mut config_file = fs::OpenOptions::new()
                         .write(true)
                         .create(true)
-                        .open(&proj_dirs.config_dir().join("ltv.toml"))?;
-                    let config = fs::read_to_string(&proj_dirs.config_dir().join("ltv.toml"))
+                        .open(&proj_dirs.config_dir().join("auth.toml"))?;
+                    let config = fs::read_to_string(&proj_dirs.config_dir().join("auth.toml"))
                         .unwrap_or_default();
-                    let mut toml: Config = toml::from_str(&config).unwrap_or_default();
+                    let mut toml: AuthConfig = toml::from_str(&config).unwrap_or_default();
                     toml.instancelist
                         .instances
                         .entry(instance.clone())

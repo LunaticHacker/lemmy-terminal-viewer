@@ -1,6 +1,7 @@
 mod api;
 mod app;
 mod auth;
+mod config;
 mod ui;
 mod utils;
 use app::{InputMode, LApp};
@@ -16,6 +17,19 @@ use tui::Terminal;
 fn main() -> Result<(), io::Error> {
     let mut app = LApp::default();
     let args: Vec<String> = env::args().collect();
+    let mut conf: config::Config = config::Config::default();
+
+    if let Some(proj_dirs) = ProjectDirs::from("dev", "ltv", "ltv") {
+        let config_dir = proj_dirs.config_dir();
+
+        let config_file = fs::read_to_string(config_dir.join("ltv.toml"));
+
+        conf = match config_file {
+            Ok(file) => toml::from_str(&file).unwrap(),
+            Err(_) => config::Config::default(),
+        };
+        app.instance = conf.default_instance.clone();
+    }
 
     match args.len() {
         2 => {
@@ -34,7 +48,7 @@ fn main() -> Result<(), io::Error> {
         3 => {
             app.instance = utils::prepend_https(args[1].clone());
             if let Some(proj_dirs) = ProjectDirs::from("dev", "ltv", "ltv") {
-                let config: auth::Config = toml::from_str(
+                let config: auth::AuthConfig = toml::from_str(
                     &fs::read_to_string(&proj_dirs.config_dir().join("ltv.toml"))
                         .unwrap_or_default(),
                 )
@@ -44,8 +58,12 @@ fn main() -> Result<(), io::Error> {
         }
         _ => {}
     }
-    app.posts = api::get_posts(format!("{}/api/v3/post/list?", &app.instance), &app.auth)
-        .unwrap_or_default();
+    app.posts = api::get_posts(
+        format!("{}/api/v3/post/list?", &app.instance),
+        &app.auth,
+        &conf.clone().stringify(),
+    )
+    .unwrap_or_default();
     // Set up terminal output
     let stdout = io::stdout().into_raw_mode()?;
     let backend = TermionBackend::new(stdout);
@@ -97,6 +115,7 @@ fn main() -> Result<(), io::Error> {
                             &app.instance, app.input
                         ),
                         &app.auth,
+                        &conf.clone().stringify(),
                     )
                     .unwrap_or_default();
                     app.input_mode = InputMode::Normal;
