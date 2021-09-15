@@ -21,7 +21,10 @@ fn main() -> Result<(), io::Error> {
         2 => {
             if &args[1] == "login" {
                 match auth::login() {
-                    Ok(_) => {}
+                    Ok(tuple) => {
+                        app.instance = tuple.0;
+                        app.auth = tuple.1;
+                    }
                     Err(e) => return Err(e),
                 };
             } else {

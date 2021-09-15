@@ -20,7 +20,7 @@ pub struct UserList {
     pub userlist: HashMap<String, String>,
 }
 
-pub fn login() -> Result<(), Error> {
+pub fn login() -> Result<(String, String), Error> {
     let reader = stdin();
     let mut instance = String::new();
     let mut login = String::new();
@@ -56,13 +56,13 @@ pub fn login() -> Result<(), Error> {
                     let mut toml: Config = toml::from_str(&config).unwrap_or_default();
                     toml.instancelist
                         .instances
-                        .entry(instance)
+                        .entry(instance.clone())
                         .or_insert(UserList::default())
                         .userlist
-                        .insert(login, jwt);
+                        .insert(login, jwt.clone());
                     let new_config = toml::to_string(&toml).unwrap_or_default();
                     if let Ok(_) = write!(config_file, "{}", new_config) {
-                        Ok(())
+                        Ok((instance, jwt))
                     } else {
                         Err(Error::new(ErrorKind::Other, "Couldn't save login details"))
                     }
