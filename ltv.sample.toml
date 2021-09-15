@@ -1,0 +1,7 @@
+# possible values for sort: Active,Hot,MostComments,New,NewComments,TopAll,TopDay,TopMonth,TopWeek,TopYear
+# possible values for type: All,Local,Subscribed
+default_instance='https://lemmy.ml' # Default instance to use when no params are provided on startup
+ [params]
+ limit='10' # How many posts to fetch
+ sort='TopDay' # How to sort the posts
+ type_='All'   # A filter to fetch posts from either your Subscribed communities or your Local instance 
