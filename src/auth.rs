@@ -24,7 +24,6 @@ pub fn login() -> Result<(String, String), Error> {
     let reader = stdin();
     let mut instance = String::new();
     let mut login = String::new();
-    let mut pass = String::new();
     println!("Enter your instance");
     reader.read_line(&mut instance).ok().expect("");
     instance.pop();
@@ -32,8 +31,7 @@ pub fn login() -> Result<(String, String), Error> {
     reader.read_line(&mut login).ok().expect("");
     login.pop();
     println!("Enter your password");
-    reader.read_line(&mut pass).ok().expect("");
-    pass.pop();
+    let pass = rpassword::read_password().unwrap_or_default();
     if !(instance.starts_with("https://")) {
         instance.insert_str(0, "https://")
     }
