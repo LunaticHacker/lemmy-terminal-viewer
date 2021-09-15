@@ -30,8 +30,12 @@ cargo run instance.url
 
 ### Setting up configs (Optional)
 Path for storing configs
-On Linux: /home/alice/.config/ltv/
-On Mac: /Users/Alice/Library/Application Support/dev.ltv.ltv/
+
+On Linux: ``` /home/alice/.config/ltv/```
+
+On Mac: 
+```/Users/Alice/Library/Application Support/dev.ltv.ltv/```
+
 copy the [sample config](ltv.sample.toml) rename it to ltv.toml and save to the path given above
 and finally make the changes you desire. All configs are explained in the sample configs 
 
