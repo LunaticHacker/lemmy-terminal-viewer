@@ -47,7 +47,7 @@ and finally make the changes you desire. All configs are explained in the sample
 
 - when viewing a post press Down arrow to see it's comments
 
-- press right arrow to see a comment's replies
+- press right arrow to see a comment's replies and go left arrow to go back
 
 ### Browsing communities
 
