@@ -76,6 +76,19 @@ where
             .block(Block::default().borders(Borders::ALL))
             .wrap(Wrap { trim: true });
         frame.render_widget(para, chunks[0])
+    } else {
+        chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(100)])
+            .split(frame.size());
+        let lines = Text::styled(
+            &app.posts[app.state.selected().unwrap_or(0)].post.name,
+            Style::default(),
+        );
+        let para = Paragraph::new(lines)
+            .block(Block::default().borders(Borders::ALL))
+            .wrap(Wrap { trim: true });
+        frame.render_widget(para, chunks[0])
     }
 }
 
