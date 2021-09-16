@@ -18,7 +18,7 @@ cargo run login
 ```
 You will be prompted to provide login details, if you successfully authenticate you will be redirected to your Feed;
 
-To log in to an already added accouunt run
+To log in to an already added account, run
 ```
 cargo run instance.url username_or_email
 ```
@@ -47,7 +47,7 @@ and finally make the changes you desire. All configs are explained in the sample
 
 - when viewing a post press Down arrow to see it's comments
 
-- press right arrow to see a comment's replies and go left arrow to go back
+- press right arrow to see a comment's replies and left arrow to go back
 
 ### Browsing communities
 
