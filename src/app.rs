@@ -21,10 +21,14 @@ pub struct LApp {
     pub comments: Vec<CommentTree>,
     //State for indexing comments
     pub comment_state: ListState,
+    //State for indexing replies
+    pub replies_state: ListState,
     //List of replies
     pub replies: Vec<CommentTree>,
     //instance url
     pub instance: String,
+    //cursor to navigate nested comments
+    pub cursor: Vec<usize>,
     //jwt key
     pub auth: String,
 }
@@ -39,7 +43,9 @@ impl Default for LApp {
             replies: Vec::new(),
             state: ListState::default(),
             comment_state: ListState::default(),
+            replies_state: ListState::default(),
             instance: String::from("https://lemmy.ml"),
+            cursor: Vec::new(),
             auth: String::from(""),
         }
     }
@@ -96,6 +102,18 @@ impl LApp {
                 None => 0,
             };
             self.comment_state.select(Some(i));
+        } else {
+            let i = match self.replies_state.selected() {
+                Some(i) => {
+                    if i >= self.replies.len() - 1 {
+                        0
+                    } else {
+                        i + 1
+                    }
+                }
+                None => 0,
+            };
+            self.replies_state.select(Some(i));
         }
     }
     pub fn c_previous(&mut self) {
@@ -111,14 +129,27 @@ impl LApp {
                 None => 0,
             };
             self.comment_state.select(Some(i));
+        } else {
+            let i = match self.replies_state.selected() {
+                Some(i) => {
+                    if i == 0 {
+                        self.replies.len() - 1
+                    } else {
+                        i - 1
+                    }
+                }
+                None => 0,
+            };
+            self.replies_state.select(Some(i));
         }
     }
 
     // Unselect the currently selected item if any. The implementation of `ListState` makes
     // sure that the stored offset is also reset.
     pub fn c_unselect(&mut self) {
-        if self.replies.is_empty() {
-            self.comment_state.select(None);
-        }
+        self.comment_state.select(None);
+    }
+    pub fn r_unselect(&mut self) {
+        self.replies_state.select(None);
     }
 }

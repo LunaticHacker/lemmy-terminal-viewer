@@ -47,7 +47,7 @@ and finally make the changes you desire. All configs are explained in the sample
 
 - when viewing a post press Down arrow to see it's comments
 
-- you can view only one level of deep nested comments (for now)
+- press right arrow to see a comment's replies and go left arrow to go back
 
 ### Browsing communities
 
@@ -55,5 +55,4 @@ In the default view press "i" to enter edit-mode to select community, enter the 
 
 ## Planned Features
 -  Themes
--  view N-level Deep nested comments
 -  parse and render markdown of post and comments

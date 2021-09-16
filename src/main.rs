@@ -155,16 +155,46 @@ fn main() -> Result<(), io::Error> {
                         app.c_next()
                     }
                 } else if let Key::Left = k.as_ref().unwrap() {
-                    if !app.replies.is_empty() {
+                    if app.cursor.len() == 1 {
+                        app.r_unselect();
                         app.replies = Vec::new();
+                        app.cursor.pop();
+                    } else if app.cursor.len() > 1 {
+                        app.cursor.pop();
+                        app.r_unselect();
+                        app.replies = utils::get_comments(app.cursor.clone(), app.comments.clone());
                     } else {
+                        app.r_unselect();
+                        app.replies = Vec::new();
                         app.input_mode = InputMode::PostView;
                     }
                 } else if let Key::Right = k.as_ref().unwrap() {
                     if !app.comments.is_empty() {
-                        app.replies = app.comments[app.comment_state.selected().unwrap_or(0)]
-                            .children
-                            .clone();
+                        if app.cursor.is_empty()
+                            && !app.comments[app.comment_state.selected().unwrap_or_default()]
+                                .children
+                                .is_empty()
+                        {
+                            app.replies = app.comments[app.comment_state.selected().unwrap_or(0)]
+                                .children
+                                .clone();
+                            app.cursor
+                                .push(app.comment_state.selected().unwrap_or_default());
+                        } else {
+                            if !app.replies.is_empty() {
+                                if !app.replies[app.replies_state.selected().unwrap_or_default()]
+                                    .children
+                                    .is_empty()
+                                {
+                                    app.cursor
+                                        .push(app.replies_state.selected().unwrap_or_default());
+                                    app.replies = utils::get_comments(
+                                        app.cursor.clone(),
+                                        app.comments.clone(),
+                                    );
+                                }
+                            }
+                        }
                     }
                 } else if let Key::Char('q') = k.as_ref().unwrap() {
                     terminal.clear()?;
