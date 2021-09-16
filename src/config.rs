@@ -9,7 +9,7 @@ impl Default for Config {
     fn default() -> Self {
         let mut params = HashMap::new();
         params.insert(String::from("limit"), String::from("10"));
-        params.insert(String::from("sort"), String::from("TopDay"));
+        params.insert(String::from("sort"), String::from("Active"));
         params.insert(String::from("type_"), String::from("All"));
         Self {
             params: params,

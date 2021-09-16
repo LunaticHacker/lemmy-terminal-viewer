@@ -111,7 +111,7 @@ fn main() -> Result<(), io::Error> {
                 } else if let Key::Right = k.as_ref().unwrap() {
                     app.posts = api::get_posts(
                         format!(
-                            "{}/api/v3/post/list?community_name={}&",
+                            "{}/api/v3/post/list?community_name={}",
                             &app.instance, app.input
                         ),
                         &app.auth,
