@@ -137,7 +137,7 @@ fn main() -> Result<(), io::Error> {
                         format!(
                             "{}/api/v3/post?id={}&",
                             &app.instance,
-                            app.posts[app.state.selected().unwrap()].post.id
+                            app.posts[app.state.selected().unwrap_or_default()].post.id
                         ),
                         &app.auth,
                     )
