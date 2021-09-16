@@ -103,20 +103,8 @@ where
     } else if let (_, false) = (&app.comments, app.replies.is_empty()) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+            .constraints([Constraint::Percentage(100)])
             .split(frame.size());
-
-        if let Some(top_comment) = &app.comments[app.comment_state.selected().unwrap_or(0)]
-            .comment
-            .comment
-            .as_ref()
-        {
-            let lines = Text::styled(top_comment.content.clone(), Style::default());
-            let para = Paragraph::new(lines)
-                .block(Block::default().borders(Borders::ALL))
-                .wrap(Wrap { trim: true });
-            frame.render_widget(para, chunks[0]);
-        }
 
         let mut items = vec![];
 
@@ -128,8 +116,8 @@ where
         }
 
         let list = List::new(items)
-            .block(Block::default().title("Comments").borders(Borders::ALL))
+            .block(Block::default().title("Replies").borders(Borders::ALL))
             .highlight_symbol("*");
-        frame.render_widget(list, chunks[1]);
+        frame.render_stateful_widget(list, chunks[0], &mut app.replies_state);
     }
 }

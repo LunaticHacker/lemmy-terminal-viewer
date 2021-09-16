@@ -15,3 +15,11 @@ pub fn prepend_https(mut str: String) -> String {
         str
     }
 }
+
+pub fn get_comments(cursor: Vec<usize>, list: Vec<CommentTree>) -> Vec<CommentTree> {
+    let mut result = list;
+    for item in cursor {
+        result = result[item].children.clone();
+    }
+    return result;
+}
