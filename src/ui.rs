@@ -2,7 +2,7 @@ use super::app::{InputMode, LApp};
 use tui::backend::Backend;
 use tui::layout::{Constraint, Direction, Layout};
 use tui::style::{Color, Style};
-use tui::text::Text;
+use tui::text::{Spans, Text, WrappedText};
 use tui::widgets::{Block, Borders, List, ListItem, Paragraph, Wrap};
 use tui::Frame;
 //renders the ui when InputMode is Normal
@@ -97,11 +97,12 @@ where
     B: Backend,
 {
     let mut items = vec![];
-
     for comment in &app.comments {
         //Comment can be null :(
         if let Some(comment) = comment.comment.comment.as_ref() {
-            items.push(ListItem::new(comment.content.as_ref()))
+            let mut t = WrappedText::new(frame.size().width - 1);
+            t.extend(Text::from(Spans::from(comment.content.as_ref())));
+            items.push(ListItem::new(t))
         }
     }
     if let (_, true) = (&app.comments, app.replies.is_empty()) {
@@ -111,7 +112,8 @@ where
             .split(frame.size());
         let list = List::new(items)
             .block(Block::default().title("Comments").borders(Borders::ALL))
-            .highlight_symbol("*");
+            .highlight_symbol(tui::symbols::line::VERTICAL)
+            .repeat_highlight_symbol(true);
         frame.render_stateful_widget(list, chunks[0], &mut app.comment_state);
     } else if let (_, false) = (&app.comments, app.replies.is_empty()) {
         let chunks = Layout::default()
@@ -124,13 +126,16 @@ where
         for comment in &app.replies {
             //Comment can be null :(
             if let Some(comment) = comment.comment.comment.as_ref() {
-                items.push(ListItem::new(comment.content.as_ref()))
+                let mut t = WrappedText::new(frame.size().width - 1);
+                t.extend(Text::from(Spans::from(comment.content.as_ref())));
+                items.push(ListItem::new(t))
             }
         }
 
         let list = List::new(items)
             .block(Block::default().title("Replies").borders(Borders::ALL))
-            .highlight_symbol("*");
+            .highlight_symbol(tui::symbols::line::VERTICAL)
+            .repeat_highlight_symbol(true);
         frame.render_stateful_widget(list, chunks[0], &mut app.replies_state);
     }
 }
