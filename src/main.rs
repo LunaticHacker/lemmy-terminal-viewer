@@ -28,7 +28,7 @@ fn main() -> Result<(), io::Error> {
             Ok(file) => toml::from_str(&file).unwrap(),
             Err(_) => config::Config::default(),
         };
-        app.instance = conf.default_instance.clone();
+        app.instance = utils::prepend_https(conf.default_instance.clone());
     }
 
     match args.len() {
