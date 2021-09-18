@@ -141,7 +141,7 @@ fn main() -> Result<(), io::Error> {
                         ),
                         &app.auth,
                     )
-                    .unwrap();
+                    .unwrap_or_default();
                     app.comments = comments;
                     app.input_mode = InputMode::CommentView;
                 }
@@ -192,6 +192,7 @@ fn main() -> Result<(), io::Error> {
                                         app.cursor.clone(),
                                         app.comments.clone(),
                                     );
+                                    app.r_unselect();
                                 }
                             }
                         }
