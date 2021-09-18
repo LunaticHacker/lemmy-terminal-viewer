@@ -1,8 +1,8 @@
 use super::app::{InputMode, LApp};
 use tui::backend::Backend;
 use tui::layout::{Constraint, Direction, Layout};
-use tui::style::{Color, Style};
-use tui::text::{Spans, Text, WrappedText};
+use tui::style::{Color, Modifier, Style};
+use tui::text::{Span, Spans, Text, WrappedText};
 use tui::widgets::{Block, Borders, List, ListItem, Paragraph, Wrap};
 use tui::Frame;
 //renders the ui when InputMode is Normal
@@ -27,11 +27,17 @@ where
 
     let mut items = vec![];
     for post in &app.posts {
-        items.push(ListItem::new(post.post.name.as_ref()))
+        let mut t = WrappedText::new(frame.size().width - 1);
+        t.extend(Text::from(vec![
+            Spans::from(vec![Span::from(post.creator.name.as_ref())]),
+            Spans::from(post.post.name.as_ref()),
+        ]));
+        items.push(ListItem::new(t))
     }
     let list = List::new(items)
         .block(Block::default().title("Posts").borders(Borders::ALL))
-        .highlight_symbol("*");
+        .highlight_symbol(tui::symbols::line::VERTICAL)
+        .repeat_highlight_symbol(true);
 
     frame.render_stateful_widget(list, chunks[1], &mut app.state);
 }
@@ -99,9 +105,15 @@ where
     let mut items = vec![];
     for comment in &app.comments {
         //Comment can be null :(
-        if let Some(comment) = comment.comment.comment.as_ref() {
+        if let Some(c) = comment.comment.comment.as_ref() {
             let mut t = WrappedText::new(frame.size().width - 1);
-            t.extend(Text::from(Spans::from(comment.content.as_ref())));
+            t.extend(Text::from(vec![
+                Spans::from(vec![Span::styled(
+                    &comment.comment.creator.name,
+                    Style::default().add_modifier(Modifier::UNDERLINED),
+                )]),
+                Spans::from(c.content.as_ref()),
+            ]));
             items.push(ListItem::new(t))
         }
     }
@@ -125,9 +137,15 @@ where
 
         for comment in &app.replies {
             //Comment can be null :(
-            if let Some(comment) = comment.comment.comment.as_ref() {
+            if let Some(c) = comment.comment.comment.as_ref() {
                 let mut t = WrappedText::new(frame.size().width - 1);
-                t.extend(Text::from(Spans::from(comment.content.as_ref())));
+                t.extend(Text::from(vec![
+                    Spans::from(vec![Span::styled(
+                        &comment.comment.creator.name,
+                        Style::default().add_modifier(Modifier::UNDERLINED),
+                    )]),
+                    Spans::from(c.content.as_ref()),
+                ]));
                 items.push(ListItem::new(t))
             }
         }
