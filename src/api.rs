@@ -23,12 +23,13 @@ pub struct Post {
     pub ap_id: Option<String>,
     pub local: bool,
 }
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 pub struct PostInfo {
     pub post: Post,
+    pub creator: Creator,
     //There are more fields but we don't care
 }
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 pub struct PostObj {
     pub posts: Vec<PostInfo>,
 }
@@ -40,13 +41,14 @@ pub struct Comment {
     pub parent_id: Option<i32>,
 }
 
-#[derive(Deserialize, Debug, Default, Clone)]
+#[derive(Deserialize, Default, Clone)]
 pub struct CommentInfo {
     pub comment: Option<Comment>,
+    pub creator: Creator,
     //There are more fields but we don't care
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 pub struct CommentObj {
     pub comments: Vec<CommentInfo>,
     //There are more fields but we don't care
@@ -103,6 +105,10 @@ impl LoginForm {
             password: pass,
         }
     }
+}
+#[derive(Deserialize, Default, Clone)]
+pub struct Creator {
+    pub name: String,
 }
 
 //Api Fetching Functions
