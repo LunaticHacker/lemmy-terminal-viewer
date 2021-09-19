@@ -29,7 +29,7 @@ where
     for post in &app.posts {
         let mut t = WrappedText::new(frame.size().width - 1);
         t.extend(Text::from(vec![
-            Spans::from(vec![Span::from(post.creator.name.as_ref())]),
+            Spans::from(vec![Span::from(post.creator.name.as_ref()),Span::from(" to "),Span::from(post.community.name.as_ref())]),
             Spans::from(post.post.name.as_ref()),
         ]));
         items.push(ListItem::new(t))

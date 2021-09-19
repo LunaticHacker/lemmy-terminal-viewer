@@ -27,6 +27,7 @@ pub struct Post {
 pub struct PostInfo {
     pub post: Post,
     pub creator: Creator,
+    pub community: Community,
     //There are more fields but we don't care
 }
 #[derive(Deserialize)]
@@ -108,6 +109,10 @@ impl LoginForm {
 }
 #[derive(Deserialize, Default, Clone)]
 pub struct Creator {
+    pub name: String,
+}
+#[derive(Deserialize, Default, Clone)]
+pub struct Community {
     pub name: String,
 }
 
