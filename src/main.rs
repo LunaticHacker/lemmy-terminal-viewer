@@ -104,6 +104,14 @@ fn main() -> Result<(), io::Error> {
                     if !app.posts.is_empty() {
                         app.input_mode = InputMode::PostView
                     }
+                }else if let Key::Left = k.as_ref().unwrap()
+                {
+                    app.posts = api::get_posts(
+                        format!("{}/api/v3/post/list?", &app.instance),
+                        &app.auth,
+                        &conf.clone().stringify(),
+                    )
+                    .unwrap_or_default();
                 }
             } else if let InputMode::Editing = &app.input_mode {
                 if let Key::Left = k.as_ref().unwrap() {
