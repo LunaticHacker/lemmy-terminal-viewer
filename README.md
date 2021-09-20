@@ -37,7 +37,7 @@ On Mac:
 ```/Users/Alice/Library/Application Support/dev.ltv.ltv/```
 
 copy the [sample config](ltv.sample.toml) rename it to ltv.toml and save to the path given above
-and finally make the changes you desire. All configs are explained in the sample configs 
+and finally make the changes you desire. All configs are explained in the sample configs
 
 ### Navigation
 
@@ -54,5 +54,4 @@ and finally make the changes you desire. All configs are explained in the sample
 In the default view press "i" to enter edit-mode to select community, enter the name of community and press Right arrow to submit. use Left arrow to exit edit mode.
 
 ## Planned Features
--  Themes
 -  parse and render markdown of post and comments

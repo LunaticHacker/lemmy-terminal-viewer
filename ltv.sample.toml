@@ -1,7 +1,14 @@
+# Important: Do NOT remove any fields. Missing fields will not be set to Default (for now)
 # possible values for sort: Active,Hot,MostComments,New,NewComments,TopAll,TopDay,TopMonth,TopWeek,TopYear
 # possible values for type: All,Local,Subscribed
+# The theme colours can be an rgb string of the form "255, 255, 255" or a string that references the colours from your terminal theme: Reset, Black, Red, Green, Yellow, Blue, Magenta, Cyan, Gray, DarkGray, LightRed, LightGreen, LightYellow, LightBlue, LightMagenta, LightCyan, White
 default_instance='https://lemmy.ml' # Default instance to use when no params are provided on startup
  [params]
  limit='10' # How many posts to fetch
  sort='Active' # How to sort the posts
- type_='All'   # A filter to fetch posts from either your Subscribed communities or your Local instance 
+ type_='All'   # A filter to fetch posts from either your Subscribed communities or your Local instance
+
+ [theme]
+  primary="LightGreen" # Used for most of the data
+  secondary="White" # Used for metadata
+  bg="Black" # Background of the terminal
