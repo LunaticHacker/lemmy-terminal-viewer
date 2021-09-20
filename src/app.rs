@@ -1,4 +1,5 @@
 use super::api::{CommentTree, PostInfo};
+use std::collections::HashMap;
 use tui::widgets::ListState;
 //Enum for Different Modes
 pub enum InputMode {
@@ -31,6 +32,8 @@ pub struct LApp {
     pub cursor: Vec<usize>,
     //jwt key
     pub auth: String,
+    //theme
+    pub theme: HashMap<String, tui::style::Color>,
 }
 
 impl Default for LApp {
@@ -47,6 +50,7 @@ impl Default for LApp {
             instance: String::from("https://lemmy.ml"),
             cursor: Vec::new(),
             auth: String::from(""),
+            theme: HashMap::new(),
         }
     }
 }

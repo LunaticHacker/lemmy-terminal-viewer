@@ -29,6 +29,7 @@ fn main() -> Result<(), io::Error> {
             Err(_) => config::Config::default(),
         };
         app.instance = utils::prepend_https(conf.default_instance.clone());
+        app.theme = utils::colorify(conf.theme.clone());
     }
 
     match args.len() {
@@ -76,6 +77,7 @@ fn main() -> Result<(), io::Error> {
     terminal.clear()?;
     loop {
         // Lock the terminal and start a drawing session.
+        terminal.autoresize()?;
         terminal
             .draw(|mut frame| {
                 if let InputMode::PostView = app.input_mode {
@@ -104,8 +106,7 @@ fn main() -> Result<(), io::Error> {
                     if !app.posts.is_empty() {
                         app.input_mode = InputMode::PostView
                     }
-                }else if let Key::Left = k.as_ref().unwrap()
-                {
+                } else if let Key::Left = k.as_ref().unwrap() {
                     app.posts = api::get_posts(
                         format!("{}/api/v3/post/list?", &app.instance),
                         &app.auth,
