@@ -37,21 +37,18 @@ On Mac:
 ```/Users/Alice/Library/Application Support/dev.ltv.ltv/```
 
 copy the [sample config](ltv.sample.toml) rename it to ltv.toml and save to the path given above
-and finally make the changes you desire. All configs are explained in the sample configs
+and finally make the changes you desire. All configs are explained in the sample config
 
 ### Navigation
 
 - Navigation is based on Arrow keys (for now)
 
-- use Up and Down keys to traverse lists of posts and comments
+- use ⬆️ and ⬇️ keys to traverse lists of posts and comments
 
-- when viewing a post press Down arrow to see it's comments
+- when viewing a post press ⬇️ to see it's comments
 
-- press right arrow to see a comment's replies and left arrow to go back
+- press ➡️ to see a comment's replies and ⬅️ to go back
 
 ### Browsing communities
 
-In the default view press "i" to enter edit-mode to select community, enter the name of community and press Right arrow to submit. use Left arrow to exit edit mode.
-
-## Planned Features
--  parse and render markdown of post and comments
+In the default view press " i "  to enter edit-mode to select community, enter the name of community and press ➡️  to submit. use ⬅️ to exit editing mode.
