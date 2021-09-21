@@ -21,8 +21,12 @@ where
         .split(frame.size());
     let input_block = Paragraph::new(tui::text::Text::from(app.input.clone()))
         .style(match app.input_mode {
-            InputMode::Normal => Style::default().fg(*app.theme.get(PRIMARY).unwrap()).bg(*app.theme.get(BG).unwrap()),
-            InputMode::Editing => Style::default().fg(*app.theme.get(SECONDARY).unwrap()).bg(*app.theme.get(BG).unwrap()),
+            InputMode::Normal => Style::default()
+                .fg(*app.theme.get(PRIMARY).unwrap())
+                .bg(*app.theme.get(BG).unwrap()),
+            InputMode::Editing => Style::default()
+                .fg(*app.theme.get(SECONDARY).unwrap())
+                .bg(*app.theme.get(BG).unwrap()),
             InputMode::PostView => Style::default(),
             InputMode::CommentView => Style::default(),
         })
@@ -32,7 +36,7 @@ where
 
     let mut items = vec![];
     for post in &app.posts {
-        let mut t = WrappedText::new(frame.size().width);
+        let mut t = WrappedText::new(frame.size().width-10);
         t.extend(Text::from(vec![
             Spans::from(vec![
                 Span::styled(
@@ -156,7 +160,7 @@ where
     for comment in &app.comments {
         //Comment can be null :(
         if let Some(c) = comment.comment.comment.as_ref() {
-            let mut t = WrappedText::new(frame.size().width-10);
+            let mut t = WrappedText::new(frame.size().width - 10);
             t.extend(Text::from(vec![
                 Spans::from(vec![Span::styled(
                     &comment.comment.creator.name,
@@ -196,7 +200,7 @@ where
         for comment in &app.replies {
             //Comment can be null :(
             if let Some(c) = comment.comment.comment.as_ref() {
-                let mut t = WrappedText::new(frame.size().width-10);
+                let mut t = WrappedText::new(frame.size().width - 10);
                 t.extend(Text::from(vec![
                     Spans::from(vec![Span::styled(
                         &comment.comment.creator.name,

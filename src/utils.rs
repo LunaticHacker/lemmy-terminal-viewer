@@ -10,6 +10,10 @@ pub fn map_tree(list: Vec<CommentInfo>) -> Vec<CommentTree> {
         .collect()
 }
 pub fn prepend_https(mut str: String) -> String {
+    if str.starts_with("localhost:") || str.starts_with("127.0.0.1") {
+        str.insert_str(0, "http://");
+        return str;
+    }
     if !str.starts_with("https://") {
         str.insert_str(0, "https://");
         return str;

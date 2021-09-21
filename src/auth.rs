@@ -32,9 +32,7 @@ pub fn login() -> Result<(String, String), Error> {
     login.pop();
     println!("Enter your password");
     let pass = rpassword::read_password().unwrap_or_default();
-    if !(instance.starts_with("https://")) {
-        instance.insert_str(0, "https://")
-    }
+    instance = super::utils::prepend_https(instance);
     match api::login(
         format!("{}/api/v3/user/login", instance),
         login.clone(),
