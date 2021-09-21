@@ -894,7 +894,7 @@ checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
 [[package]]
 name = "tui"
 version = "0.16.0"
-source = "git+https://github.com/LunaticHacker/tui-rs?branch=for-ltv#5d6c656220690e45c0a7d5f88678d4be94891fab"
+source = "git+https://github.com/LunaticHacker/tui-rs?branch=for-ltv#4f8804ce8efceba8f6c61b693fbd7037686c74a2"
 dependencies = [
  "bitflags",
  "cassowary",
