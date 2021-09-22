@@ -6,7 +6,11 @@ Terminal User Interface for lemmy for Linux Terminals (should work in MacOs but 
 
 ### Linux 
 
-Download and install binary from [releases](https://github.com/LunaticHacker/lemmy-terminal-viewer/releases)
+* Download ```ltv-linux.tar.gz``` from [releases](https://github.com/LunaticHacker/lemmy-terminal-viewer/releases)
+* Navigate to download location
+* Extract it with ```tar -xf ltv-linux.tar.gz ```
+* You can now execute the file using ```./ltv```
+* To Install globally move the executable to /usr/bin with ```sudo mv ./ltv /usr/bin```
 
 ### Mac
 Build the project yourself with cargo (no offical support)
