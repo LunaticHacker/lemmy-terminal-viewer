@@ -3,7 +3,7 @@ use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
-use std::io::{stdin, Error, ErrorKind, Write};
+use std::io::{stdin,stdout, Error, ErrorKind, Write};
 use toml;
 
 #[derive(Default, Deserialize, Serialize, Debug)]
@@ -24,13 +24,16 @@ pub fn login() -> Result<(String, String), Error> {
     let reader = stdin();
     let mut instance = String::new();
     let mut login = String::new();
-    println!("Enter your instance");
+    print!("Enter your instance: ");
+    stdout().flush().unwrap();
     reader.read_line(&mut instance).ok().expect("");
     instance.pop();
-    println!("Enter your username or email");
+    print!("Enter your username or email: ");
+    stdout().flush().unwrap();
     reader.read_line(&mut login).ok().expect("");
     login.pop();
-    println!("Enter your password");
+    print!("Enter your password: ");
+    stdout().flush().unwrap();
     let pass = rpassword::read_password().unwrap_or_default();
     instance = super::utils::prepend_https(instance);
     match api::login(
