@@ -36,7 +36,7 @@ where
 
     let mut items = vec![];
     for post in &app.posts {
-        let mut t = WrappedText::new(frame.size().width-10);
+        let mut t = WrappedText::new(frame.size().width - 10);
         t.extend(Text::from(vec![
             Spans::from(vec![
                 Span::styled(
@@ -53,6 +53,7 @@ where
                 ),
             ]),
             Spans::from(post.post.name.as_ref()),
+            Spans::from(""),
         ]));
         items.push(ListItem::new(t))
     }
@@ -170,6 +171,7 @@ where
                         .add_modifier(Modifier::UNDERLINED),
                 )]),
                 Spans::from(c.content.as_ref()),
+                Spans::from(""),
             ]));
             items.push(ListItem::new(t))
         }
@@ -210,6 +212,7 @@ where
                             .add_modifier(Modifier::UNDERLINED),
                     )]),
                     Spans::from(c.content.as_ref()),
+                    Spans::from(""),
                 ]));
                 items.push(ListItem::new(t))
             }
