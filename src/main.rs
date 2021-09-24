@@ -10,6 +10,7 @@ use std::env;
 use std::fs;
 use std::io;
 use std::io::Read;
+use std::{thread, time};
 use termion::{async_stdin, event::Key, input::TermRead, raw::IntoRawMode};
 use tui::backend::TermionBackend;
 use tui::Terminal;
@@ -75,7 +76,8 @@ fn main() -> Result<(), io::Error> {
     let mut asi = async_stdin();
 
     terminal.clear()?;
-    loop {
+    'outer: loop {
+        thread::sleep(time::Duration::from_millis(200));
         // Lock the terminal and start a drawing session.
         terminal.autoresize()?;
         terminal
@@ -93,8 +95,7 @@ fn main() -> Result<(), io::Error> {
         for k in asi.by_ref().keys() {
             if let InputMode::Normal = &app.input_mode {
                 if let Key::Char('q') = k.as_ref().unwrap() {
-                    terminal.clear()?;
-                    return Ok(());
+                    break 'outer;
                 } else if let Key::Char('i') = k.as_ref().unwrap() {
                     app.unselect();
                     app.input_mode = InputMode::Editing;
@@ -138,8 +139,7 @@ fn main() -> Result<(), io::Error> {
                     app.comments = Vec::new();
                     app.input_mode = InputMode::Normal;
                 } else if let Key::Char('q') = k.as_ref().unwrap() {
-                    terminal.clear()?;
-                    return Ok(());
+                    break 'outer;
                 } else if let Key::Down = k.as_ref().unwrap() {
                     app.c_unselect();
                     let comments = api::get_comments(
@@ -207,10 +207,10 @@ fn main() -> Result<(), io::Error> {
                         }
                     }
                 } else if let Key::Char('q') = k.as_ref().unwrap() {
-                    terminal.clear()?;
-                    return Ok(());
+                    break 'outer;
                 }
             }
         }
     }
+    terminal.clear()
 }

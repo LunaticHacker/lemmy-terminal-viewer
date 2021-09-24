@@ -3,7 +3,7 @@ use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
-use std::io::{stdin,stdout, Error, ErrorKind, Write};
+use std::io::{stdin, stdout, Error, ErrorKind, Write};
 use toml;
 
 #[derive(Default, Deserialize, Serialize, Debug)]
