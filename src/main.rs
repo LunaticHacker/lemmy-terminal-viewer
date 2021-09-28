@@ -2,16 +2,16 @@ mod api;
 mod app;
 mod auth;
 mod config;
+mod event;
 mod ui;
 mod utils;
 use app::{InputMode, LApp};
 use directories::ProjectDirs;
+use event::{Event, Events};
 use std::env;
 use std::fs;
 use std::io;
-use std::io::Read;
-use std::{thread, time};
-use termion::{async_stdin, event::Key, input::TermRead, raw::IntoRawMode};
+use termion::{event::Key, raw::IntoRawMode};
 use tui::backend::TermionBackend;
 use tui::Terminal;
 
@@ -71,13 +71,11 @@ fn main() -> Result<(), io::Error> {
     let backend = TermionBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    // Create a separate thread to poll stdin.
-    // This provides non-blocking input support.
-    let mut asi = async_stdin();
+    //init event handler
+    let events = Events::new();
 
     terminal.clear()?;
     'outer: loop {
-        thread::sleep(time::Duration::from_millis(200));
         // Lock the terminal and start a drawing session.
         terminal.autoresize()?;
         terminal
@@ -92,22 +90,22 @@ fn main() -> Result<(), io::Error> {
             })
             .unwrap();
         //Event handling, TODO: Refactor this abomination
-        for k in asi.by_ref().keys() {
+        if let Event::Input(input) = events.next().unwrap() {
             if let InputMode::Normal = &app.input_mode {
-                if let Key::Char('q') = k.as_ref().unwrap() {
+                if let Key::Char('q') = input {
                     break 'outer;
-                } else if let Key::Char('i') = k.as_ref().unwrap() {
+                } else if let Key::Char('i') = input {
                     app.unselect();
                     app.input_mode = InputMode::Editing;
-                } else if let Key::Up = k.as_ref().unwrap() {
+                } else if let Key::Up = input {
                     app.previous()
-                } else if let Key::Down = k.as_ref().unwrap() {
+                } else if let Key::Down = input {
                     app.next()
-                } else if let Key::Right = k.as_ref().unwrap() {
+                } else if let Key::Right = input {
                     if !app.posts.is_empty() {
                         app.input_mode = InputMode::PostView
                     }
-                } else if let Key::Left = k.as_ref().unwrap() {
+                } else if let Key::Left = input {
                     app.posts = api::get_posts(
                         format!("{}/api/v3/post/list?", &app.instance),
                         &app.auth,
@@ -116,9 +114,9 @@ fn main() -> Result<(), io::Error> {
                     .unwrap_or_default();
                 }
             } else if let InputMode::Editing = &app.input_mode {
-                if let Key::Left = k.as_ref().unwrap() {
+                if let Key::Left = input {
                     app.input_mode = InputMode::Normal;
-                } else if let Key::Right = k.as_ref().unwrap() {
+                } else if let Key::Right = input {
                     app.posts = api::get_posts(
                         format!(
                             "{}/api/v3/post/list?community_name={}",
@@ -129,18 +127,18 @@ fn main() -> Result<(), io::Error> {
                     )
                     .unwrap_or_default();
                     app.input_mode = InputMode::Normal;
-                } else if let termion::event::Key::Char(c) = k.as_ref().unwrap() {
-                    app.input.push(*c);
-                } else if let Key::Backspace = k.as_ref().unwrap() {
+                } else if let termion::event::Key::Char(c) = input {
+                    app.input.push(c);
+                } else if let Key::Backspace = input {
                     app.input.pop();
                 }
             } else if let InputMode::PostView = &app.input_mode {
-                if let Key::Left = k.as_ref().unwrap() {
+                if let Key::Left = input {
                     app.comments = Vec::new();
                     app.input_mode = InputMode::Normal;
-                } else if let Key::Char('q') = k.as_ref().unwrap() {
+                } else if let Key::Char('q') = input {
                     break 'outer;
-                } else if let Key::Down = k.as_ref().unwrap() {
+                } else if let Key::Down = input {
                     app.c_unselect();
                     let comments = api::get_comments(
                         format!(
@@ -155,15 +153,15 @@ fn main() -> Result<(), io::Error> {
                     app.input_mode = InputMode::CommentView;
                 }
             } else if let InputMode::CommentView = &app.input_mode {
-                if let Key::Up = k.as_ref().unwrap() {
+                if let Key::Up = input {
                     if !app.comments.is_empty() {
                         app.c_previous()
                     }
-                } else if let Key::Down = k.as_ref().unwrap() {
+                } else if let Key::Down = input {
                     if !app.comments.is_empty() {
                         app.c_next()
                     }
-                } else if let Key::Left = k.as_ref().unwrap() {
+                } else if let Key::Left = input {
                     if app.cursor.len() == 1 {
                         app.r_unselect();
                         app.replies = Vec::new();
@@ -177,7 +175,7 @@ fn main() -> Result<(), io::Error> {
                         app.replies = Vec::new();
                         app.input_mode = InputMode::PostView;
                     }
-                } else if let Key::Right = k.as_ref().unwrap() {
+                } else if let Key::Right = input {
                     if !app.comments.is_empty() {
                         if app.cursor.is_empty()
                             && !app.comments[app.comment_state.selected().unwrap_or_default()]
@@ -206,7 +204,7 @@ fn main() -> Result<(), io::Error> {
                             }
                         }
                     }
-                } else if let Key::Char('q') = k.as_ref().unwrap() {
+                } else if let Key::Char('q') = input {
                     break 'outer;
                 }
             }
