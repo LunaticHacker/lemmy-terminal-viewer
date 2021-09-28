@@ -53,6 +53,16 @@ where
                 ),
             ]),
             Spans::from(post.post.name.as_ref()),
+            Spans::from(vec![
+                Span::styled(
+                    format!("{}", post.counts.comments),
+                    Style::default().fg(*app.theme.get(SECONDARY).unwrap()),
+                ),
+                Span::styled(
+                    " Comments",
+                    Style::default().fg(*app.theme.get(SECONDARY).unwrap()),
+                ),
+            ]),
             Spans::from(""),
         ]));
         items.push(ListItem::new(t))
@@ -171,6 +181,16 @@ where
                         .add_modifier(Modifier::UNDERLINED),
                 )]),
                 Spans::from(c.content.as_ref()),
+                Spans::from(vec![
+                    Span::styled(
+                        format!("{}", comment.children.len()),
+                        Style::default().fg(*app.theme.get(SECONDARY).unwrap()),
+                    ),
+                    Span::styled(
+                        " Replies",
+                        Style::default().fg(*app.theme.get(SECONDARY).unwrap()),
+                    ),
+                ]),
                 Spans::from(""),
             ]));
             items.push(ListItem::new(t))
@@ -212,6 +232,16 @@ where
                             .add_modifier(Modifier::UNDERLINED),
                     )]),
                     Spans::from(c.content.as_ref()),
+                    Spans::from(vec![
+                        Span::styled(
+                            format!("{}", comment.children.len()),
+                            Style::default().fg(*app.theme.get(SECONDARY).unwrap()),
+                        ),
+                        Span::styled(
+                            " Replies",
+                            Style::default().fg(*app.theme.get(SECONDARY).unwrap()),
+                        ),
+                    ]),
                     Spans::from(""),
                 ]));
                 items.push(ListItem::new(t))

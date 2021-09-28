@@ -28,6 +28,7 @@ pub struct PostInfo {
     pub post: Post,
     pub creator: Creator,
     pub community: Community,
+    pub counts: PostCounts,
     //There are more fields but we don't care
 }
 #[derive(Deserialize)]
@@ -115,7 +116,10 @@ pub struct Creator {
 pub struct Community {
     pub name: String,
 }
-
+#[derive(Deserialize, Default, Clone)]
+pub struct PostCounts {
+    pub comments: i64,
+}
 //Api Fetching Functions
 
 pub fn get_posts(url: String, auth: &str, config: &str) -> Result<Vec<PostInfo>, reqwest::Error> {
