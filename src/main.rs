@@ -11,7 +11,7 @@ use event::{Event, Events};
 use std::env;
 use std::fs;
 use std::io;
-use termion::{event::Key, raw::IntoRawMode};
+use termion::{event::Key, raw::IntoRawMode,screen::AlternateScreen};
 use tui::backend::TermionBackend;
 use tui::Terminal;
 
@@ -68,7 +68,7 @@ fn main() -> Result<(), io::Error> {
     .unwrap_or_default();
     // Set up terminal output
     let stdout = io::stdout().into_raw_mode()?;
-    let backend = TermionBackend::new(stdout);
+    let backend = TermionBackend::new(AlternateScreen::from(stdout));
     let mut terminal = Terminal::new(backend)?;
 
     //init event handler
