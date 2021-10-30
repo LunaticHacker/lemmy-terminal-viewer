@@ -2,7 +2,6 @@ use std::io;
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
-
 use termion::event::Key;
 use termion::input::TermRead;
 
@@ -13,6 +12,7 @@ pub enum Event<I> {
 
 /// A small event handler that wrap termion input and tick events. Each event
 /// type is handled in its own thread and returned to a common `Receiver`
+#[allow(dead_code)]
 pub struct Events {
     rx: mpsc::Receiver<Event<Key>>,
     input_handle: thread::JoinHandle<()>,

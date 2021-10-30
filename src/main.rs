@@ -11,7 +11,7 @@ use event::{Event, Events};
 use std::env;
 use std::fs;
 use std::io;
-use termion::{event::Key, raw::IntoRawMode,screen::AlternateScreen};
+use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
 use tui::backend::TermionBackend;
 use tui::Terminal;
 
