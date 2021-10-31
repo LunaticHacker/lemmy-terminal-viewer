@@ -114,12 +114,13 @@ fn main() -> Result<(), io::Error> {
                     )
                     .unwrap_or_default();
                 } else if let Key::Char('1') = input {
+                    app.unselect();
                     sort::sort(sort::SortType::New, &mut app.posts);
-                }
-                else if let Key::Char('2') = input {
+                } else if let Key::Char('2') = input {
+                    app.unselect();
                     sort::sort(sort::SortType::Old, &mut app.posts);
-                }
-                else if let Key::Char('3') = input {
+                } else if let Key::Char('3') = input {
+                    app.unselect();
                     sort::sort(sort::SortType::Top, &mut app.posts);
                 }
             } else if let InputMode::Editing = &app.input_mode {

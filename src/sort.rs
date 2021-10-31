@@ -15,14 +15,14 @@ pub fn sort(st: SortType, posts: &mut Vec<PostInfo>) {
                     .unwrap()
                     .cmp(&NaiveDateTime::from_str(&a.post.published).unwrap())
             });
-        },
+        }
         SortType::Old => {
             posts.sort_by(|a, b| {
                 NaiveDateTime::from_str(&a.post.published)
                     .unwrap()
                     .cmp(&NaiveDateTime::from_str(&b.post.published).unwrap())
             });
-        },
-        SortType::Top => posts.sort_by(|b,a|{a.counts.score.cmp(&b.counts.score)}),
+        }
+        SortType::Top => posts.sort_by(|b, a| a.counts.score.cmp(&b.counts.score)),
     }
 }
