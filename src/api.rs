@@ -1,7 +1,7 @@
 use super::utils;
 use serde::Deserialize;
 //Structs for Posts
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Ord, PartialOrd, Eq, PartialEq)]
 pub struct Post {
     pub id: i32,
     pub name: String,
@@ -11,7 +11,7 @@ pub struct Post {
     pub community_id: i32,
     pub removed: bool,
     pub locked: bool,
-    pub published: Option<String>,
+    pub published: String,
     pub updated: Option<String>,
     pub deleted: bool,
     pub nsfw: bool,
@@ -23,7 +23,7 @@ pub struct Post {
     pub ap_id: Option<String>,
     pub local: bool,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Ord, PartialOrd, Eq, PartialEq)]
 pub struct PostInfo {
     pub post: Post,
     pub creator: Creator,
@@ -108,17 +108,18 @@ impl LoginForm {
         }
     }
 }
-#[derive(Deserialize, Default, Clone)]
+#[derive(Deserialize, Default, Clone, Ord, PartialOrd, Eq, PartialEq)]
 pub struct Creator {
     pub name: String,
 }
-#[derive(Deserialize, Default, Clone)]
+#[derive(Deserialize, Default, Clone, Ord, PartialOrd, Eq, PartialEq)]
 pub struct Community {
     pub name: String,
 }
-#[derive(Deserialize, Default, Clone)]
+#[derive(Deserialize, Default, Clone, Ord, PartialOrd, Eq, PartialEq)]
 pub struct PostCounts {
     pub comments: i64,
+    pub score: i64,
 }
 //Api Fetching Functions
 

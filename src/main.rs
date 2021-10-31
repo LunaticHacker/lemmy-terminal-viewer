@@ -3,6 +3,7 @@ mod app;
 mod auth;
 mod config;
 mod event;
+mod sort;
 mod ui;
 mod utils;
 use app::{InputMode, LApp};
@@ -112,6 +113,14 @@ fn main() -> Result<(), io::Error> {
                         &conf.clone().stringify(),
                     )
                     .unwrap_or_default();
+                } else if let Key::Char('1') = input {
+                    sort::sort(sort::SortType::New, &mut app.posts);
+                }
+                else if let Key::Char('2') = input {
+                    sort::sort(sort::SortType::Old, &mut app.posts);
+                }
+                else if let Key::Char('3') = input {
+                    sort::sort(sort::SortType::Top, &mut app.posts);
                 }
             } else if let InputMode::Editing = &app.input_mode {
                 if let Key::Left = input {
