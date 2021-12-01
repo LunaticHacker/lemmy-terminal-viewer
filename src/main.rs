@@ -11,7 +11,7 @@ use event::{Event, Events};
 use std::env;
 use std::fs;
 use std::io;
-use termion::{event::Key, raw::IntoRawMode,screen::AlternateScreen};
+use termion::{event::Key, raw::IntoRawMode, screen::AlternateScreen};
 use tui::backend::TermionBackend;
 use tui::Terminal;
 
@@ -110,6 +110,36 @@ fn main() -> Result<(), io::Error> {
                         format!("{}/api/v3/post/list?", &app.instance),
                         &app.auth,
                         &conf.clone().stringify(),
+                    )
+                    .unwrap_or_default();
+                } else if let Key::Char('1') = input {
+                    //unwrap is fine we will have a config always
+                    let limit = conf.params.get("limit").unwrap();
+                    let type_ = conf.params.get("type_").unwrap();
+                    app.posts = api::get_posts(
+                        format!("{}/api/v3/post/list?", &app.instance),
+                        &app.auth,
+                        &format!("&limit={}&type_={}&sort=New", limit, type_),
+                    )
+                    .unwrap_or_default();
+                } else if let Key::Char('2') = input {
+                    //unwrap is fine we will have a config always
+                    let limit = conf.params.get("limit").unwrap();
+                    let type_ = conf.params.get("type_").unwrap();
+                    app.posts = api::get_posts(
+                        format!("{}/api/v3/post/list?", &app.instance),
+                        &app.auth,
+                        &format!("&limit={}&type_={}&sort=Hot", limit, type_),
+                    )
+                    .unwrap_or_default();
+                } else if let Key::Char('3') = input {
+                    //unwrap is fine we will have a config always
+                    let limit = conf.params.get("limit").unwrap();
+                    let type_ = conf.params.get("type_").unwrap();
+                    app.posts = api::get_posts(
+                        format!("{}/api/v3/post/list?", &app.instance),
+                        &app.auth,
+                        &format!("&limit={}&type_={}&sort=Active", limit, type_),
                     )
                     .unwrap_or_default();
                 }
