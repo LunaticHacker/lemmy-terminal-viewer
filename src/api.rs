@@ -41,12 +41,14 @@ pub struct Comment {
     pub id: i32,
     pub content: String,
     pub parent_id: Option<i32>,
+    pub published: String,
 }
 
 #[derive(Deserialize, Default, Clone)]
 pub struct CommentInfo {
-    pub comment: Option<Comment>,
+    pub comment: Comment,
     pub creator: Creator,
+    pub counts: CommentCounts,
     //There are more fields but we don't care
 }
 
@@ -71,19 +73,7 @@ impl CommentTree {
     fn fill_children(mut self, comments: &Vec<CommentInfo>) -> Self {
         for i in 0..comments.len() {
             let clone = comments.clone();
-            if comments[i]
-                .comment
-                .as_ref()
-                .unwrap_or(&Comment::default())
-                .parent_id
-                .unwrap_or_default()
-                == self
-                    .comment
-                    .comment
-                    .as_ref()
-                    .unwrap_or(&Comment::default())
-                    .id
-            {
+            if comments[i].comment.parent_id.unwrap_or_default() == self.comment.comment.id {
                 self.children
                     .push(CommentTree::new(&comments[i]).fill_children(&clone));
             }
@@ -120,6 +110,10 @@ pub struct Community {
 pub struct PostCounts {
     pub comments: i64,
 }
+#[derive(Deserialize, Default, Clone)]
+pub struct CommentCounts {
+    pub score: i64,
+}
 //Api Fetching Functions
 
 pub fn get_posts(url: String, auth: &str, config: &str) -> Result<Vec<PostInfo>, reqwest::Error> {
@@ -142,13 +136,7 @@ pub fn get_comments(url: String, auth: &str) -> Result<Vec<CommentTree>, reqwest
     let clone = comments.clone();
     let filtered_comments: Vec<CommentInfo> = comments
         .into_iter()
-        .filter(|c| {
-            !c.comment
-                .as_ref()
-                .unwrap_or(&Comment::default())
-                .parent_id
-                .is_some()
-        })
+        .filter(|c| !c.comment.parent_id.is_some())
         .collect();
     let result = utils::map_tree(filtered_comments);
     //result.iter().map(|r|r.fill_children(&clone)).collect()

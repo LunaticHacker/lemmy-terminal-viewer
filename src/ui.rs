@@ -17,7 +17,14 @@ where
 {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(3), Constraint::Length(7)].as_ref())
+        .constraints(
+            [
+                Constraint::Length(3),
+                Constraint::Length(1),
+                Constraint::Length(7),
+            ]
+            .as_ref(),
+        )
         .split(frame.size());
     let input_block = Paragraph::new(tui::text::Text::from(app.input.clone()))
         .style(match app.input_mode {
@@ -77,7 +84,14 @@ where
         .highlight_symbol(tui::symbols::line::VERTICAL)
         .repeat_highlight_symbol(true);
 
-    frame.render_stateful_widget(list, chunks[1], &mut app.state);
+    frame.render_stateful_widget(list, chunks[2], &mut app.state);
+
+    let sort_text = Paragraph::new(" New[1] Hot[2] Active[3] Old[4]").style(
+        Style::default()
+            .fg(*app.theme.get(PRIMARY).unwrap())
+            .bg(*app.theme.get(BG).unwrap()),
+    );
+    frame.render_widget(sort_text, chunks[1]);
 }
 //renders the ui when InputMode is PostView
 pub fn draw_post<B>(app: &mut LApp, frame: &mut Frame<B>)
@@ -169,8 +183,60 @@ where
 {
     let mut items = vec![];
     for comment in &app.comments {
-        //Comment can be null :(
-        if let Some(c) = comment.comment.comment.as_ref() {
+        let mut t = WrappedText::new(frame.size().width - 10);
+        t.extend(Text::from(vec![
+            Spans::from(vec![Span::styled(
+                &comment.comment.creator.name,
+                Style::default()
+                    .fg(*app.theme.get(SECONDARY).unwrap())
+                    .bg(*app.theme.get(BG).unwrap())
+                    .add_modifier(Modifier::UNDERLINED),
+            )]),
+            Spans::from(comment.comment.comment.content.as_ref()),
+            Spans::from(vec![
+                Span::styled(
+                    format!("{}", comment.children.len()),
+                    Style::default().fg(*app.theme.get(SECONDARY).unwrap()),
+                ),
+                Span::styled(
+                    " Replies",
+                    Style::default().fg(*app.theme.get(SECONDARY).unwrap()),
+                ),
+            ]),
+            Spans::from(""),
+        ]));
+        items.push(ListItem::new(t))
+    }
+    if let (_, true) = (&app.comments, app.replies.is_empty()) {
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Length(1), Constraint::Length(7)])
+            .split(frame.size());
+        let list = List::new(items)
+            .block(Block::default().title("Comments").borders(Borders::ALL))
+            .style(
+                Style::default()
+                    .fg(*app.theme.get(PRIMARY).unwrap())
+                    .bg(*app.theme.get(BG).unwrap()),
+            )
+            .highlight_symbol(tui::symbols::line::VERTICAL)
+            .repeat_highlight_symbol(true);
+        let sort_text = Paragraph::new(" New[1] Old[2] Hot[3]").style(
+            Style::default()
+                .fg(*app.theme.get(PRIMARY).unwrap())
+                .bg(*app.theme.get(BG).unwrap()),
+        );
+        frame.render_widget(sort_text, chunks[0]);
+        frame.render_stateful_widget(list, chunks[1], &mut app.comment_state);
+    } else if let (_, false) = (&app.comments, app.replies.is_empty()) {
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(100)])
+            .split(frame.size());
+
+        let mut items = vec![];
+
+        for comment in &app.replies {
             let mut t = WrappedText::new(frame.size().width - 10);
             t.extend(Text::from(vec![
                 Spans::from(vec![Span::styled(
@@ -180,7 +246,7 @@ where
                         .bg(*app.theme.get(BG).unwrap())
                         .add_modifier(Modifier::UNDERLINED),
                 )]),
-                Spans::from(c.content.as_ref()),
+                Spans::from(comment.comment.comment.content.as_ref()),
                 Spans::from(vec![
                     Span::styled(
                         format!("{}", comment.children.len()),
@@ -194,58 +260,6 @@ where
                 Spans::from(""),
             ]));
             items.push(ListItem::new(t))
-        }
-    }
-    if let (_, true) = (&app.comments, app.replies.is_empty()) {
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Percentage(100)])
-            .split(frame.size());
-        let list = List::new(items)
-            .block(Block::default().title("Comments").borders(Borders::ALL))
-            .style(
-                Style::default()
-                    .fg(*app.theme.get(PRIMARY).unwrap())
-                    .bg(*app.theme.get(BG).unwrap()),
-            )
-            .highlight_symbol(tui::symbols::line::VERTICAL)
-            .repeat_highlight_symbol(true);
-        frame.render_stateful_widget(list, chunks[0], &mut app.comment_state);
-    } else if let (_, false) = (&app.comments, app.replies.is_empty()) {
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Percentage(100)])
-            .split(frame.size());
-
-        let mut items = vec![];
-
-        for comment in &app.replies {
-            //Comment can be null :(
-            if let Some(c) = comment.comment.comment.as_ref() {
-                let mut t = WrappedText::new(frame.size().width - 10);
-                t.extend(Text::from(vec![
-                    Spans::from(vec![Span::styled(
-                        &comment.comment.creator.name,
-                        Style::default()
-                            .fg(*app.theme.get(SECONDARY).unwrap())
-                            .bg(*app.theme.get(BG).unwrap())
-                            .add_modifier(Modifier::UNDERLINED),
-                    )]),
-                    Spans::from(c.content.as_ref()),
-                    Spans::from(vec![
-                        Span::styled(
-                            format!("{}", comment.children.len()),
-                            Style::default().fg(*app.theme.get(SECONDARY).unwrap()),
-                        ),
-                        Span::styled(
-                            " Replies",
-                            Style::default().fg(*app.theme.get(SECONDARY).unwrap()),
-                        ),
-                    ]),
-                    Spans::from(""),
-                ]));
-                items.push(ListItem::new(t))
-            }
         }
 
         let list = List::new(items)
