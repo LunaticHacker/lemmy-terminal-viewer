@@ -122,6 +122,7 @@ fn main() -> Result<(), io::Error> {
                         &format!("&limit={}&type_={}&sort=New", limit, type_),
                     )
                     .unwrap_or_default();
+                    app.unselect();
                 } else if let Key::Char('2') = input {
                     //unwrap is fine we will have a config always
                     let limit = conf.params.get("limit").unwrap();
@@ -132,6 +133,7 @@ fn main() -> Result<(), io::Error> {
                         &format!("&limit={}&type_={}&sort=Hot", limit, type_),
                     )
                     .unwrap_or_default();
+                    app.unselect();
                 } else if let Key::Char('3') = input {
                     //unwrap is fine we will have a config always
                     let limit = conf.params.get("limit").unwrap();
@@ -142,6 +144,7 @@ fn main() -> Result<(), io::Error> {
                         &format!("&limit={}&type_={}&sort=Active", limit, type_),
                     )
                     .unwrap_or_default();
+                    app.unselect();
                 }
             } else if let InputMode::Editing = &app.input_mode {
                 if let Key::Left = input {
@@ -233,6 +236,21 @@ fn main() -> Result<(), io::Error> {
                                 }
                             }
                         }
+                    }
+                } else if let Key::Char('1') = input {
+                    if app.replies.is_empty() {
+                        utils::sort(utils::SortType::New, &mut app.comments);
+                        app.c_unselect()
+                    }
+                } else if let Key::Char('2') = input {
+                    if app.replies.is_empty() {
+                        utils::sort(utils::SortType::Old, &mut app.comments);
+                        app.c_unselect()
+                    }
+                } else if let Key::Char('3') = input {
+                    if app.replies.is_empty() {
+                        utils::sort(utils::SortType::Hot, &mut app.comments);
+                        app.c_unselect()
                     }
                 } else if let Key::Char('q') = input {
                     break 'outer;

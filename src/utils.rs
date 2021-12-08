@@ -1,6 +1,13 @@
 use super::api::{CommentInfo, CommentTree};
+use chrono::NaiveDateTime;
 use std::collections::HashMap;
+use std::str::FromStr;
 use tui::style::Color;
+pub enum SortType {
+    Hot,
+    Old,
+    New,
+}
 pub fn map_tree(list: Vec<CommentInfo>) -> Vec<CommentTree> {
     list.into_iter()
         .map(|ct| CommentTree {
@@ -71,4 +78,30 @@ pub fn colorify(list: HashMap<String, String>) -> HashMap<String, Color> {
         result.insert(key, parse_theme(&value).unwrap_or(Color::Black));
     }
     result
+}
+
+pub fn sort(st: SortType, ct: &mut Vec<CommentTree>) {
+    match st {
+        SortType::New => {
+            ct.sort_by(|b, a| {
+                NaiveDateTime::from_str(&a.comment.comment.published)
+                    .unwrap()
+                    .cmp(&NaiveDateTime::from_str(&b.comment.comment.published).unwrap())
+            });
+            for c in ct {
+                sort(SortType::New, &mut c.children);
+            }
+        }
+        SortType::Old => {
+            ct.sort_by(|a, b| {
+                NaiveDateTime::from_str(&a.comment.comment.published)
+                    .unwrap()
+                    .cmp(&NaiveDateTime::from_str(&b.comment.comment.published).unwrap())
+            });
+            for c in ct {
+                sort(SortType::Old, &mut c.children);
+            }
+        }
+        _ => {}
+    }
 }
