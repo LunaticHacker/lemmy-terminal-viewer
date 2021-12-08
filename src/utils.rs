@@ -79,7 +79,7 @@ pub fn colorify(list: HashMap<String, String>) -> HashMap<String, Color> {
     }
     result
 }
-
+//TODO: Refactor this
 pub fn sort(st: SortType, ct: &mut Vec<CommentTree>) {
     match st {
         SortType::New => {
@@ -102,6 +102,34 @@ pub fn sort(st: SortType, ct: &mut Vec<CommentTree>) {
                 sort(SortType::Old, &mut c.children);
             }
         }
-        _ => {}
+        SortType::Hot => {
+            ct.sort_by(|b, a| {
+                let rank =
+                    calculate_hot_rank(a.comment.counts.score, a.comment.comment.published.clone())
+                        .partial_cmp(&calculate_hot_rank(
+                            b.comment.counts.score,
+                            b.comment.comment.published.clone(),
+                        ));
+                match rank {
+                    Some(r) => r,
+                    None => std::cmp::Ordering::Equal,
+                }
+            });
+            for c in ct {
+                sort(SortType::Hot, &mut c.children);
+            }
+        }
     }
+}
+// TODO: Looks correct from some manual tests. but verify properly later
+// Code from https://github.com/LemmyNet/lemmy-ui/blob/a11cbb29c73107fcc7a629e7b0babdf939520675/src/shared/utils.ts#L269
+pub fn calculate_hot_rank(score: i64, timestr: String) -> f64 {
+    let elapsed = (chrono::offset::Utc::now().timestamp_millis()
+        - chrono::NaiveDateTime::from_str(&timestr)
+            .unwrap()
+            .timestamp_millis())
+        / 3600000;
+    let elapsed_base: f64 = (elapsed + 2) as f64;
+    let max = std::cmp::max(1, 3 + score) as f64;
+    (10000 as f64 * max.log10()) / elapsed_base.powf(1.8)
 }

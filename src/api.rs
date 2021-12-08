@@ -48,6 +48,7 @@ pub struct Comment {
 pub struct CommentInfo {
     pub comment: Comment,
     pub creator: Creator,
+    pub counts: CommentCounts,
     //There are more fields but we don't care
 }
 
@@ -108,6 +109,10 @@ pub struct Community {
 #[derive(Deserialize, Default, Clone)]
 pub struct PostCounts {
     pub comments: i64,
+}
+#[derive(Deserialize, Default, Clone)]
+pub struct CommentCounts {
+    pub score: i64,
 }
 //Api Fetching Functions
 

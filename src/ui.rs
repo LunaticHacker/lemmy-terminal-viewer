@@ -86,7 +86,7 @@ where
 
     frame.render_stateful_widget(list, chunks[2], &mut app.state);
 
-    let sort_text = Paragraph::new(" New[1] Hot[2] Active[3]").style(
+    let sort_text = Paragraph::new(" New[1] Hot[2] Active[3] Old[4]").style(
         Style::default()
             .fg(*app.theme.get(PRIMARY).unwrap())
             .bg(*app.theme.get(BG).unwrap()),

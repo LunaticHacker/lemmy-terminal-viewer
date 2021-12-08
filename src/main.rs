@@ -145,6 +145,18 @@ fn main() -> Result<(), io::Error> {
                     )
                     .unwrap_or_default();
                     app.unselect();
+                } else if let Key::Char('4') = input {
+                    //unwrap is fine we will have a config always
+                    let limit = conf.params.get("limit").unwrap();
+                    let type_ = conf.params.get("type_").unwrap();
+                    app.posts = api::get_posts(
+                        format!("{}/api/v3/post/list?", &app.instance),
+                        &app.auth,
+                        &format!("&limit={}&type_={}&sort=New", limit, type_),
+                    )
+                    .unwrap_or_default();
+                    app.posts.reverse();
+                    app.unselect();
                 }
             } else if let InputMode::Editing = &app.input_mode {
                 if let Key::Left = input {
